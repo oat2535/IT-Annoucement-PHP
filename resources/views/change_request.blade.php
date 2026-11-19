@@ -1234,6 +1234,10 @@
 
         function getSafeFileUrl(url) {
             if (!url) return '';
+            // If blob URL or data URL, return immediately as is
+            if (url.startsWith('blob:') || url.startsWith('data:')) {
+                return url;
+            }
             // If the URL has an absolute domain (like http://localhost:8000/storage/...), convert to relative /storage/...
             if (url.startsWith('http://') || url.startsWith('https://')) {
                 try {
@@ -1242,10 +1246,14 @@
                     if (idx !== -1) {
                         return parsed.pathname.substring(idx);
                     }
+                    const mediaIdx = parsed.pathname.indexOf('/media/');
+                    if (mediaIdx !== -1) {
+                        return '/storage/' + parsed.pathname.substring(mediaIdx + 7);
+                    }
                 } catch (e) {}
             }
             if (!url.startsWith('/') && !url.startsWith('http')) {
-                return '/storage/' + url.replace(/^storage\//, '');
+                return '/storage/' + url.replace(/^storage\//, '').replace(/^media\//, '');
             }
             return url;
         }
@@ -1612,9 +1620,10 @@
 
             // Explicitly attach all File objects from selectedFiles array to guarantee files are reliably sent
             formData.delete('attachments');
+            formData.delete('attachments[]');
             if (selectedFiles && selectedFiles.length > 0) {
                 selectedFiles.forEach(file => {
-                    formData.append('attachments', file, file.name);
+                    formData.append('attachments[]', file, file.name);
                 });
             }
 

@@ -10,7 +10,7 @@ services:
     ports:
       - "${PORT:-5889}:5889"
     volumes:
-      - app_storage_public:/app/storage/app/public
+      - ${MEDIA_PATH:-/home/admintlp/it-annoucement-tlp/media}:/app/storage/app/public
       - app_logs:/app/storage/logs
     environment:
       - APP_NAME=IT_Announcement
@@ -46,8 +46,6 @@ services:
       - app_network
 
 volumes:
-  app_storage_public:
-    name: it_announcement_storage_public
   app_logs:
     name: it_announcement_logs
 

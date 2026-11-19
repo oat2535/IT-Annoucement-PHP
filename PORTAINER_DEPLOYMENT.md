@@ -11,6 +11,7 @@
 | **Git Repository URL** | `https://github.com/oat2535/IT-Annoucement-PHP.git` |
 | **Branch** | `main` (หรือ `refs/heads/main`) |
 | **Compose path** | `docker-compose.yml` |
+| **Host Media Storage Path** | `/home/admintlp/it-annoucement-tlp/media` |
 | **Service Port** | `5889` |
 | **Healthcheck Endpoint** | `http://127.0.0.1:5889/up` |
 | **Database** | PostgreSQL (Schema: `intra_tl`) |
@@ -40,8 +41,8 @@
                         │                                  │
          ┌──────────────┴──────────────┐    ┌──────────────┴──────────────┐
          ▼                             ▼    ▼                             ▼
-  [Named Volume]                 [Named Volume]                 [External Database]
-  it_announcement_storage_public it_announcement_logs           PostgreSQL Server
+  [Host Bind Mount]              [Named Volume]                 [External Database]
+  /home/admintlp/.../media       it_announcement_logs           PostgreSQL Server
   (/app/storage/app/public)      (/app/storage/logs)            (Host: 192.168.98.254:5434)
 ```
 
@@ -95,6 +96,7 @@
 | Name | Example Value | Description |
 | :--- | :--- | :--- |
 | `PORT` | `5889` | Port ของ Web Application |
+| `MEDIA_PATH` | `/home/admintlp/it-annoucement-tlp/media` | Path เก็บไฟล์อัปโหลดบน Ubuntu Host |
 | `APP_KEY` | `base64:7K5gB0qJ72n0O22R1j0PjS6cR7mi04s3D76u4234xY0=` | Key ความปลอดภัยของ Laravel |
 | `APP_URL` | `https://annouce.thonglorpet.com` | Full Domain URL |
 | `DB_HOST` | `192.168.98.254` | IP Database PostgreSQL |

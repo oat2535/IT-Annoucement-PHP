@@ -63,3 +63,12 @@ Route::get('/diagnose', function () {
     $statusCode = (isset($results['database']['status']) && $results['database']['status'] === 'CONNECTED') ? 200 : 500;
     return response()->json($results, $statusCode, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
 })->name('diagnose');
+
+// Media static serving fallback (supports legacy /media/{path} requests)
+Route::get('/media/{path}', function (string $path) {
+    $filePath = storage_path('app/public/' . $path);
+    if (file_exists($filePath)) {
+        return response()->file($filePath);
+    }
+    abort(404);
+})->where('path', '.*')->name('media.file');

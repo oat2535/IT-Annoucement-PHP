@@ -90,17 +90,21 @@ class ChangeRequestController extends Controller
 
             $cr = ChangeRequest::create($data);
 
-            // Handle file attachments
+            // Handle file attachments (support array and single file)
             if ($request->hasFile('attachments')) {
-                foreach ($request->file('attachments') as $file) {
-                    $stored = $this->fileService->storeAttachment($file);
-                    $cr->attachments()->create([
-                        'file' => $stored['file_path'],
-                        'file_name' => $stored['original_name'],
-                        'file_size' => $stored['file_size'],
-                        'mime_type' => $stored['mime_type'],
-                        'uploaded_at' => now(),
-                    ]);
+                $rawFiles = $request->file('attachments');
+                $files = is_array($rawFiles) ? $rawFiles : [$rawFiles];
+                foreach ($files as $file) {
+                    if ($file instanceof \Illuminate\Http\UploadedFile && $file->isValid()) {
+                        $stored = $this->fileService->storeAttachment($file);
+                        $cr->attachments()->create([
+                            'file' => $stored['file_path'],
+                            'file_name' => $stored['original_name'],
+                            'file_size' => $stored['file_size'],
+                            'mime_type' => $stored['mime_type'],
+                            'uploaded_at' => now(),
+                        ]);
+                    }
                 }
             }
 

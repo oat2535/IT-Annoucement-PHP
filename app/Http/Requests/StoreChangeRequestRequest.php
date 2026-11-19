@@ -71,8 +71,8 @@ class StoreChangeRequestRequest extends FormRequest
             'approver_date' => ['nullable', 'date'],
 
             // Files
-            'attachments' => ['nullable', 'array'],
-            'attachments.*' => ['file', 'max:25600'], // max 25MB per file
+            'attachments' => ['nullable'],
+            'attachments.*' => ['nullable', 'file', 'max:51200'], // max 50MB per file
         ];
     }
 }

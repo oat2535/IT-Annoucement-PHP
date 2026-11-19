@@ -114,4 +114,38 @@ class ChangeRequestApiTest extends TestCase
         $response->assertStatus(200);
         $this->assertStringContainsString('text/csv', $response->headers->get('content-type'));
     }
+
+    public function test_can_create_change_request_with_attachments(): void
+    {
+        $fakeFile = \Illuminate\Http\UploadedFile::fake()->create('sample_doc.pdf', 500, 'application/pdf');
+
+        $payload = [
+            'project_name' => 'โครงการทดสอบอัปโหลดไฟล์แนบ',
+            'project_owner' => 'เจ้าของโครงการ',
+            'objectives' => 'ทดสอบความสมบูรณ์ของการบันทึกไฟล์แนบ',
+            'main_responsible_person' => 'ผู้ดูแลระบบ',
+            'attachments' => [$fakeFile],
+        ];
+
+        $response = $this->post('/api/save_change_request/', $payload);
+
+        $response->assertStatus(201)
+            ->assertJson([
+                'status' => 'success',
+                'success' => true,
+            ]);
+
+        $this->assertEquals(1, $response->json('attachments_count'));
+    }
+
+    public function test_can_access_media_route_fallback(): void
+    {
+        $testPath = storage_path('app/public/test_file.txt');
+        file_put_contents($testPath, 'Hello media fallback');
+
+        $response = $this->get('/media/test_file.txt');
+        $response->assertStatus(200);
+
+        @unlink($testPath);
+    }
 }

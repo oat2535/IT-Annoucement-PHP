@@ -52,8 +52,12 @@ COPY . .
 # Install dependencies (optimized for production)
 RUN composer install --no-dev --optimize-autoloader --no-interaction
 
-# Prepare permissions
-RUN chown -R www-data:www-data /app/storage /app/bootstrap/cache \
+# Prepare permissions & storage seed for host media bind mount
+RUN mkdir -p /app/storage_seed \
+    && if [ -d /app/storage/app/public/change_requests ]; then \
+        cp -r /app/storage/app/public/change_requests /app/storage_seed/change_requests; \
+    fi \
+    && chown -R www-data:www-data /app/storage /app/bootstrap/cache \
     && chmod -R 775 /app/storage /app/bootstrap/cache \
     && chmod +x /app/docker-entrypoint.sh
 

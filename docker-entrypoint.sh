@@ -8,6 +8,12 @@ mkdir -p /app/storage/framework/sessions \
          /app/storage/logs \
          /app/storage/app/public/change_requests
 
+# Sync seed files into mounted media directory if missing
+if [ -d /app/storage_seed/change_requests ]; then
+    echo "Syncing initial change_requests files to /app/storage/app/public..."
+    cp -rn /app/storage_seed/change_requests/* /app/storage/app/public/change_requests/ 2>/dev/null || true
+fi
+
 # Set correct permissions for www-data and current user
 chown -R www-data:www-data /app/storage /app/bootstrap/cache || true
 chmod -R 775 /app/storage /app/bootstrap/cache || true

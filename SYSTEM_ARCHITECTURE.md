@@ -1,7 +1,8 @@
 # สถาปัตยกรรมและการทำงานของระบบ IT Announcement & System Change Request
 **Framework:** PHP 8.3 / Laravel 13  
 **Database:** PostgreSQL (`imedx_tlp_for_it` บน Host `192.168.98.254:5434`, Schema `intra_tl`)  
-**Service Port:** 5897  
+**Service Port:** 5889  
+**Domain:** `https://annouce.thonglorpet.com`  
 **Core Principles:** Best Practice, Performance, Stability  
 
 ---
@@ -90,7 +91,7 @@ c:\IT Annoucement - PHP/
 │       └── WebPortalTest.php
 ├── Dockerfile                                   # Docker Containerization Specification
 ├── artisan.bat                                  # สคริปต์เรียกคำสั่ง artisan บน Windows
-└── serve.bat                                    # สคริปต์สตาร์ทเว็บเซิร์ฟเวอร์พอร์ต 5897 บน Windows
+└── serve.bat                                    # สคริปต์สตาร์ทเว็บเซิร์ฟเวอร์พอร์ต 5889 บน Windows
 ```
 
 ---
@@ -380,7 +381,7 @@ flowchart TD
 
 ### การแก้ปัญหาเรื่องความเสถียรของไฟล์แนบ:
 1. **Root-Relative Storage URLs**:  
-   ใน Model `ChangeRequestAttachment` ปรับ `getUrlAttribute()` ให้ส่งคืนค่าในรูปแบบ `/storage/change_requests/...` เสมอ ไม่ติด `http://localhost:8000` ทำให้เข้าใช้งานผ่านพอร์ตใดก็ตาม (เช่น 5897) หรือ IP วงแลนใดก็ตาม เบราว์เซอร์จะเชื่อมต่อเข้ากับเซิร์ฟเวอร์ปัจจุบันได้ทันที
+   ใน Model `ChangeRequestAttachment` ปรับ `getUrlAttribute()` ให้ส่งคืนค่าในรูปแบบ `/storage/change_requests/...` เสมอ ไม่ติด `http://localhost:8000` ทำให้เข้าใช้งานผ่านพอร์ตใดก็ตาม (เช่น 5889) หรือ Domain `https://annouce.thonglorpet.com` เบราว์เซอร์จะเชื่อมต่อเข้ากับเซิร์ฟเวอร์ปัจจุบันได้ทันที
 2. **HTMLInputElement File Security Bypass**:  
    ใน JavaScript การวนลูป Binding ข้อมูลจะข้าม `<input type="file">` โดยตรง ป้องกันไม่ให้เบราว์เซอร์เกิดข้อผิดพลาด `InvalidStateError: Failed to set the 'value' property on 'HTMLInputElement'`
 3. **Download / External Tab Fallback**:  
@@ -410,9 +411,9 @@ flowchart TD
 ### 9.1 การรันใช้งานบน Windows (Development / On-Premise)
 1. ดับเบิ้ลคลิกไฟล์ [serve.bat](file:///c:/IT%20Annoucement%20-%20PHP/serve.bat) หรือรันคำสั่งใน PowerShell:
    ```powershell
-   php artisan serve --port=5897
+   php artisan serve --port=5889
    ```
-2. เปิดเบราว์เซอร์ไปที่: `http://localhost:5897` หรือ `http://127.0.0.1:5897`
+2. เปิดเบราว์เซอร์ไปที่: `http://localhost:5889` หรือ `https://annouce.thonglorpet.com`
 
 ### 9.2 การรันใช้งานผ่าน Docker Container
 มีไฟล์ [Dockerfile](file:///c:/IT%20Annoucement%20-%20PHP/Dockerfile) รองรับการ Build เป็น Container (Alpine Linux + PHP 8.3 + PostgreSQL Drivers):
@@ -420,10 +421,10 @@ flowchart TD
 # 1. Build Docker Image
 docker build -t it-announcement-tlp:latest .
 
-# 2. Run Container บน Port 5897
+# 2. Run Container บน Port 5889
 docker run -d \
   --name it-announcement-app \
-  -p 5897:5897 \
+  -p 5889:5889 \
   --restart unless-stopped \
   -v /host/path/storage:/app/storage \
   it-announcement-tlp:latest

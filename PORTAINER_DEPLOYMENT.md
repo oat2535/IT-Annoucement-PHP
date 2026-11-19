@@ -11,8 +11,8 @@
 | **Git Repository URL** | `https://github.com/oat2535/IT-Annoucement-PHP.git` |
 | **Branch** | `main` (หรือ `refs/heads/main`) |
 | **Compose path** | `docker-compose.yml` |
-| **Service Port** | `5897` |
-| **Healthcheck Endpoint** | `http://127.0.0.1:5897/up` |
+| **Service Port** | `5889` |
+| **Healthcheck Endpoint** | `http://127.0.0.1:5889/up` |
 | **Database** | PostgreSQL (Schema: `intra_tl`) |
 
 ---
@@ -28,7 +28,7 @@
                                            ▼
 ┌──────────────────────────────────────────────────────────────────────────────────┐
 │ Docker Container: it_announcement_laravel_web                                    │
-│ Port: 5897                                                                       │
+│ Port: 5889                                                                       │
 │                                                                                  │
 │  ┌───────────────────────┐   ┌────────────────────────┐   ┌───────────────────┐  │
 │  │ docker-entrypoint.sh  │──▶│ PHP 8.3 CLI + OPcache  │──▶│ Laravel 13 App    │  │
@@ -94,7 +94,7 @@
 
 | Name | Example Value | Description |
 | :--- | :--- | :--- |
-| `PORT` | `5897` | Port ของ Web Application |
+| `PORT` | `5889` | Port ของ Web Application |
 | `APP_KEY` | `base64:7K5gB0qJ72n0O22R1j0PjS6cR7mi04s3D76u4234xY0=` | Key ความปลอดภัยของ Laravel |
 | `APP_URL` | `https://annouce.thonglorpet.com` | Full Domain URL |
 | `DB_HOST` | `192.168.98.254` | IP Database PostgreSQL |
@@ -102,7 +102,7 @@
 | `DB_DATABASE` | `imedx_tlp_for_it` | ชื่อ Database |
 | `DB_USERNAME` | `eservices` | ชื่อผู้ใช้ Database |
 | `DB_PASSWORD` | `Tlp@2023` | รหัสผ่าน Database |
-| `DB_SCHEMA` | `intra_tl` | Search Path Schema |
+| `DB_SCHEMA` | `intra_tl,public` | Search Path Schema |
 | `DB_AUTO_MIGRATE` | `false` | ตั้งเป็น `true` หากต้องการรัน migrate อัตโนมัติ |
 
 ---
@@ -121,16 +121,15 @@
    - State: `running (healthy)`
 2. **ทดสอบ Health Endpoint**:
    ```bash
-   curl -I http://<SERVER_IP>:5897/up
+   curl -I http://<SERVER_IP>:5889/up
    # ต้องได้สถานะ: HTTP/1.1 200 OK
    ```
 3. **ระบบวิเคราะห์สถานะเชิงลึก (Self-Diagnostics Endpoint)**:
-   - เปิดบราวเซอร์ไปที่: `http://<SERVER_IP>:5897/diagnose`
+   - เปิดบราวเซอร์ไปที่: `http://<SERVER_IP>:5889/diagnose` หรือ `https://annouce.thonglorpet.com/diagnose`
    - ระบบจะส่งกลับ JSON รายงานผลการเชื่อมต่อฐานข้อมูล PostgreSQL, Permission ของไดเรกทอรี Storage/Session/Cache และจำนวนข้อมูลในตารางทันที หากมีข้อผิดพลาดจะระบุสาเหตุอย่างละเอียด
 4. **เปิดใช้งานหน้าเว็บ**:
-   - หน้าหลัก Portal: `http://<SERVER_IP>:5897/`
-   - ฟอร์ม Change Request: `http://<SERVER_IP>:5897/change-request`
-   - หน้าประกาศ Announcement: `http://<SERVER_IP>:5897/announcement`
+   - ผ่าน Domain: `https://annouce.thonglorpet.com/`
+   - ผ่าน IP โดยตรง: `http://<SERVER_IP>:5889/`
 
 ---
 

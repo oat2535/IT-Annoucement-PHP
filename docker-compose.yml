@@ -8,7 +8,7 @@ services:
     container_name: it_announcement_laravel_web
     restart: unless-stopped
     ports:
-      - "${PORT:-5897}:5897"
+      - "${PORT:-5889}:5889"
     volumes:
       - app_storage_public:/app/storage/app/public
       - app_logs:/app/storage/logs
@@ -17,7 +17,7 @@ services:
       - APP_ENV=${APP_ENV:-production}
       - APP_KEY=${APP_KEY:-base64:7K5gB0qJ72n0O22R1j0PjS6cR7mi04s3D76u4234xY0=}
       - APP_DEBUG=${APP_DEBUG:-true}
-      - APP_URL=${APP_URL:-http://localhost:5897}
+      - APP_URL=${APP_URL:-https://annouce.thonglorpet.com}
       - DB_CONNECTION=pgsql
       - DB_HOST=${DB_HOST:-192.168.98.254}
       - DB_PORT=${DB_PORT:-5434}
@@ -32,7 +32,7 @@ services:
       - LOG_CHANNEL=${LOG_CHANNEL:-stderr}
       - LOG_LEVEL=${LOG_LEVEL:-debug}
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://127.0.0.1:5897/up || exit 1"]
+      test: ["CMD-SHELL", "curl -f http://127.0.0.1:5889/up || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3

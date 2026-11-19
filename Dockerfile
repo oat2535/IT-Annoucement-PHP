@@ -58,12 +58,12 @@ RUN chown -R www-data:www-data /app/storage /app/bootstrap/cache \
     && chmod +x /app/docker-entrypoint.sh
 
 # Expose port
-EXPOSE 5897
+EXPOSE 5889
 
 # Healthcheck
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
-  CMD curl -f http://127.0.0.1:5897/up || exit 1
+  CMD curl -f http://127.0.0.1:5889/up || exit 1
 
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
 
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=5897"]
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=5889"]

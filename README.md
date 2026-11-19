@@ -10,9 +10,9 @@
 ### วิธีที่ 1: รันบน Windows
 รันคำสั่งผ่านสคริปต์ [serve.bat](file:///c:/IT%20Annoucement%20-%20PHP/serve.bat) หรือรันใน PowerShell:
 ```powershell
-php artisan serve --port=5897
+php artisan serve --port=5889
 ```
-เข้าใช้งานผ่านเบราว์เซอร์: [http://localhost:5897](http://localhost:5897)
+เข้าใช้งานผ่านเบราว์เซอร์: [http://localhost:5889](http://localhost:5889) หรือ Domain: [https://annouce.thonglorpet.com](https://annouce.thonglorpet.com)
 
 ### วิธีที่ 2: รันผ่าน Docker & Portainer
 ```bash

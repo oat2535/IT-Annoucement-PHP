@@ -1,0 +1,2011 @@
+
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IT Announcement Form</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <!-- html2canvas and jsPDF for export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
+    
+    <style>
+        :root {
+            --bg-dark: #1e293b;
+            --bg-darker: #0f172a;
+            --accent-yellow: #facc15;
+            --accent-red: #ef4444;
+            --text-white: #ffffff;
+            --text-gray-light: #cbd5e1;
+            --text-dark: #334155;
+            --text-gray-dark: #64748b;
+            --card-bg: #ffffff;
+            --card-border: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Kanit', sans-serif;
+            background-color: #f1f5f9;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+            color: var(--text-dark);
+            min-height: 100vh;
+        }
+
+        /* Modern Navbar / Toolbar Container with Scroll Controls */
+        .toolbar-container {
+            position: sticky;
+            top: 20px;
+            z-index: 1000;
+            width: 100%;
+            max-width: 1200px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 10px 16px 12px 16px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 15px -3px rgba(15, 23, 42, 0.08), 0 2px 6px -2px rgba(15, 23, 42, 0.04);
+            flex: 1;
+            min-width: 0;
+            overflow-x: auto;
+            white-space: nowrap;
+            -webkit-overflow-scrolling: touch;
+            box-sizing: border-box;
+            scroll-behavior: smooth;
+            scrollbar-width: thin;
+            scrollbar-color: #0284c7 #e2e8f0;
+        }
+
+        /* High-visibility, easy-to-click & drag horizontal scrollbar */
+        .toolbar::-webkit-scrollbar {
+            height: 10px;
+            cursor: pointer;
+        }
+        .toolbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 8px;
+            margin: 0 8px;
+            border: 1px solid #e2e8f0;
+        }
+        .toolbar::-webkit-scrollbar-thumb {
+            background: #94a3b8;
+            border-radius: 8px;
+            border: 2px solid #f1f5f9;
+            cursor: grab;
+        }
+        .toolbar::-webkit-scrollbar-thumb:hover {
+            background: #0284c7;
+        }
+        .toolbar::-webkit-scrollbar-thumb:active {
+            background: #0369a1;
+            cursor: grabbing;
+        }
+
+        /* Navigation Scroll Buttons (Left / Right) */
+        .toolbar-scroll-btn {
+            width: 36px;
+            height: 44px;
+            background: #ffffff;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 10px;
+            color: #334155;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 3px 8px rgba(15, 23, 42, 0.08);
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+            font-size: 14px;
+            user-select: none;
+        }
+        .toolbar-scroll-btn:hover:not(:disabled) {
+            background: #0284c7;
+            color: #ffffff;
+            border-color: #0284c7;
+            transform: scale(1.06);
+            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
+        }
+        .toolbar-scroll-btn:active:not(:disabled) {
+            transform: scale(0.96);
+        }
+        .toolbar-scroll-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            background: #f8fafc;
+            border-color: #e2e8f0;
+            box-shadow: none;
+        }
+
+        .toolbar-section {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+        .toolbar-left {
+            gap: 10px;
+        }
+        .toolbar-divider {
+            width: 1px;
+            height: 24px;
+            background-color: #e2e8f0;
+            margin: 0 4px;
+            flex-shrink: 0;
+        }
+        .select-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            flex-shrink: 0;
+        }
+        .select-wrapper .select-icon {
+            position: absolute;
+            left: 12px;
+            color: #64748b;
+            font-size: 13px;
+            pointer-events: none;
+            z-index: 2;
+        }
+        .select-wrapper .select-chevron {
+            position: absolute;
+            right: 12px;
+            color: #94a3b8;
+            font-size: 11px;
+            pointer-events: none;
+            z-index: 2;
+        }
+        .custom-nav-select {
+            height: 40px;
+            padding: 0 34px 0 34px;
+            background-color: #f8fafc;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 8px;
+            color: #1e293b;
+            font-family: 'Kanit', sans-serif;
+            font-size: 13.5px;
+            font-weight: 500;
+            cursor: pointer;
+            -webkit-appearance: none;
+            appearance: none;
+            max-width: 280px;
+            min-width: 220px;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+        .custom-nav-select:hover {
+            background-color: #ffffff;
+            border-color: #94a3b8;
+        }
+        .custom-nav-select:focus {
+            background-color: #ffffff;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+        }
+
+        .toolbar-hint {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 0 12px;
+            height: 40px;
+            border-radius: 8px;
+            background: #f8fafc;
+            border: 1px dashed #cbd5e1;
+            color: #64748b;
+            font-size: 13px;
+            font-weight: 500;
+            white-space: nowrap;
+            flex-shrink: 0;
+            user-select: none;
+        }
+        .toolbar-hint i {
+            color: #0284c7;
+            font-size: 13px;
+        }
+
+        /* Nav Action Buttons */
+        .nav-btn {
+            height: 40px;
+            padding: 0 16px;
+            border-radius: 8px;
+            font-family: 'Kanit', sans-serif;
+            font-size: 13.5px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            line-height: 1;
+            text-decoration: none;
+            flex-shrink: 0;
+            border: none;
+            box-sizing: border-box;
+            user-select: none;
+            min-height: 40px;
+        }
+        .nav-btn i {
+            font-size: 14px;
+        }
+        .nav-btn:active {
+            transform: translateY(0) scale(0.98);
+        }
+
+        /* Nav Button Variants */
+        .nav-btn-back {
+            background: #ffffff;
+            border: 1.5px solid #cbd5e1;
+            color: #334155;
+            padding: 0 14px;
+        }
+        .nav-btn-back:hover {
+            background: #f1f5f9;
+            border-color: #94a3b8;
+            color: #0f172a;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .nav-btn-request {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: #ffffff;
+            box-shadow: 0 2px 4px rgba(16, 185, 129, 0.25);
+        }
+        .nav-btn-request:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(16, 185, 129, 0.35);
+            filter: brightness(1.03);
+        }
+
+        .nav-btn-switch {
+            background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+            color: #ffffff;
+            box-shadow: 0 2px 4px rgba(14, 165, 233, 0.25);
+        }
+        .nav-btn-switch:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(14, 165, 233, 0.35);
+            filter: brightness(1.03);
+        }
+        .nav-btn-switch.active-green {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            box-shadow: 0 2px 4px rgba(16, 185, 129, 0.25);
+        }
+        .nav-btn-switch.active-green:hover {
+            box-shadow: 0 4px 10px rgba(16, 185, 129, 0.35);
+        }
+
+        .nav-btn-save {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: #ffffff;
+            box-shadow: 0 2px 4px rgba(16, 185, 129, 0.25);
+        }
+        .nav-btn-save:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(16, 185, 129, 0.35);
+            filter: brightness(1.03);
+        }
+
+        .nav-btn-image {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: #ffffff;
+            box-shadow: 0 2px 4px rgba(59, 130, 246, 0.25);
+        }
+        .nav-btn-image:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(59, 130, 246, 0.35);
+            filter: brightness(1.03);
+        }
+
+        .nav-btn-pdf {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: #ffffff;
+            box-shadow: 0 2px 4px rgba(239, 68, 68, 0.25);
+        }
+        .nav-btn-pdf:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(239, 68, 68, 0.35);
+            filter: brightness(1.03);
+        }
+
+        .nav-btn-report {
+            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+            color: #ffffff;
+            box-shadow: 0 2px 4px rgba(2, 132, 199, 0.25);
+        }
+        .nav-btn-report:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(2, 132, 199, 0.35);
+            filter: brightness(1.05);
+        }
+
+        @media (max-width: 900px) {
+            .toolbar {
+                padding: 10px 12px;
+                gap: 8px;
+            }
+            .custom-nav-select {
+                max-width: 190px;
+                min-width: 150px;
+                font-size: 13px;
+                padding: 0 28px 0 30px;
+            }
+            .nav-btn {
+                padding: 0 12px;
+                font-size: 13px;
+            }
+        }
+
+        /* Legacy Button Helpers for Stability */
+        .btn {
+            border: none;
+            font-family: 'Kanit', sans-serif;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+        }
+        .btn i {
+            font-size: 1.2em;
+        }
+
+        .btn-primary {
+            background-color: #3b82f6;
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #2563eb;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-danger {
+            background-color: #ef4444;
+            color: white;
+        }
+        .btn-danger:hover {
+            background-color: #dc2626;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+        }
+
+        .btn-success {
+            background-color: #10b981;
+            color: white;
+            margin-right: auto;
+        }
+        .btn-success:hover {
+            background-color: #059669;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-secondary {
+            background-color: #64748b;
+            color: white;
+            margin-left: 15px;
+            text-decoration: none;
+        }
+        .btn-secondary:hover {
+            background-color: #475569;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(100, 116, 139, 0.3);
+        }
+
+        .btn-purple {
+            background-color: #8b5cf6;
+            color: white;
+        }
+        .btn-purple:hover {
+            background-color: #7c3aed;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+        }
+
+        /* Main Announcement Container */
+        .announcement-container {
+            width: 100%;
+            max-width: 1200px; /* Fixed width for consistent export */
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            position: relative;
+        }
+
+        /* Editable Areas Indicator */
+        [contenteditable="true"] {
+            outline: none;
+            transition: background-color 0.2s, box-shadow 0.2s;
+            border-radius: 4px;
+            padding: 2px 4px;
+            margin: -2px -4px;
+        }
+        [contenteditable="true"]:hover, [contenteditable="true"]:focus {
+            background-color: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.4) dashed;
+        }
+        .content-section [contenteditable="true"]:hover, .content-section [contenteditable="true"]:focus {
+            background-color: rgba(0, 0, 0, 0.03);
+            box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.2) dashed;
+        }
+
+        /* --- Header Section --- */
+        .header-section {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            padding: 35px 50px 45px;
+            position: relative;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 25px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 20px;
+        }
+
+        .header-left-top {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .megaphone-icon {
+            width: 65px;
+            height: 65px;
+            background: linear-gradient(135deg, #facc15 0%, #eab308 100%);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(250, 204, 21, 0.4);
+            border: 3px solid rgba(255, 255, 255, 0.2);
+        }
+        .megaphone-icon i {
+            font-size: 28px;
+            color: #1e293b;
+        }
+
+        .header-titles {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .title-small {
+            color: var(--accent-yellow);
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
+
+        .title-main {
+            color: var(--text-white);
+            font-size: 26px;
+            font-weight: 600;
+        }
+
+        .header-right-top {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 12px;
+        }
+
+        .maintenance-notice {
+            color: var(--text-gray-light);
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .change-no-badge {
+            background-color: var(--accent-red);
+            color: white;
+            padding: 6px 18px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3);
+        }
+        .change-no-badge::before {
+            content: '';
+            display: block;
+            width: 8px;
+            height: 8px;
+            background-color: white;
+            border-radius: 50%;
+            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
+        }
+
+        /* --- Subheader Section --- */
+        .subheader {
+            margin-top: 25px;
+        }
+        
+        .subheader-tag {
+            color: var(--text-gray-light);
+            font-size: 16px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        .subheader-tag i {
+            color: var(--accent-red);
+            font-size: 18px;
+        }
+        
+        .subheader-title {
+            color: var(--text-white);
+            font-size: 42px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .subheader-title::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 0;
+            width: 80px;
+            height: 5px;
+            background-color: var(--accent-yellow);
+            border-radius: 3px;
+        }
+
+        /* --- Content Section --- */
+        .content-section {
+            background-color: #ffffff;
+            padding: 50px;
+        }
+
+        .grid-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 35px;
+        }
+
+        .info-card {
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 25px;
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+            background-color: #fff;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .icon-box {
+            width: 56px;
+            height: 56px;
+            border-radius: 14px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-shrink: 0;
+        }
+        .icon-box.blue { background-color: #eff6ff; color: #3b82f6; border: 1px solid #dbeafe; }
+        .icon-box.orange { background-color: #fff7ed; color: #ea580c; border: 1px solid #ffedd5; }
+        .icon-box.cyan { background-color: #f0fdfa; color: #0d9488; border: 1px solid #ccfbf1; }
+        .icon-box.red { background-color: #fef2f2; color: #e11d48; border: 1px solid #ffe4e6; }
+
+        .icon-box i {
+            font-size: 24px;
+        }
+
+        .card-content {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+        }
+
+        .card-label {
+            color: var(--text-gray-dark);
+            font-size: 15px;
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+
+        .card-value {
+            color: var(--text-dark);
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .card-subtext {
+            color: var(--text-gray-dark);
+            font-size: 15px;
+        }
+        
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            background-color: #fef3c7;
+            color: #b45309;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 15px;
+            font-weight: 600;
+            margin-top: 8px;
+            gap: 8px;
+            border: 1px solid #fde68a;
+        }
+        .status-pill::before {
+            content: '';
+            display: block;
+            width: 8px;
+            height: 8px;
+            background-color: #f59e0b;
+            border-radius: 50%;
+        }
+
+        /* --- Alert Banner --- */
+        .alert-banner {
+            background: linear-gradient(to right, #fefce8, #fef3c7);
+            border: 1px solid #fcd34d;
+            border-radius: 12px;
+            padding: 25px;
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(251, 191, 36, 0.15);
+        }
+
+        .alert-banner::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 8px;
+            background-color: #f59e0b;
+        }
+
+        .alert-icon {
+            width: 48px;
+            height: 48px;
+            background-color: #f59e0b;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            flex-shrink: 0;
+            box-shadow: 0 4px 10px rgba(245, 158, 11, 0.3);
+        }
+        .alert-icon i { font-size: 20px; }
+
+        .alert-content {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .alert-title {
+            color: #b45309;
+            font-size: 16px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .alert-message {
+            color: var(--text-dark);
+            font-size: 20px;
+            font-weight: 500;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .alert-message-text {
+            flex: 1 1 260px;
+        }
+
+        .badge-orange {
+            background-color: #f97316;
+            color: white;
+            padding: 4px 16px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            box-shadow: 0 2px 4px rgba(249, 115, 22, 0.3);
+        }
+
+        /* --- Note Section --- */
+        .note-section {
+            background-color: #f8fafc;
+            border-radius: 10px;
+            padding: 18px 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border-left: 5px solid #cbd5e1;
+            color: var(--text-gray-dark);
+            font-size: 16px;
+            font-weight: 500;
+        }
+        .note-section i {
+            color: #94a3b8;
+            font-size: 18px;
+        }
+
+        /* --- Footer Section --- */
+        .footer-section {
+            background-color: #1e293b;
+            padding: 25px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .footer-contacts {
+            display: flex;
+            gap: 50px;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: var(--text-white);
+        }
+
+        .contact-icon {
+            width: 42px;
+            height: 42px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .contact-icon i { font-size: 18px; color: #e2e8f0; }
+
+        .contact-text {
+            display: flex;
+            flex-direction: column;
+        }
+        .contact-label {
+            font-size: 13px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 500;
+        }
+        .contact-value {
+            font-size: 18px;
+            font-weight: 600;
+            color: #f8fafc;
+        }
+
+        .footer-logo {
+            background-color: white;
+            padding: 10px 25px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .footer-logo i {
+            font-size: 28px;
+        }
+        .footer-logo-text {
+            color: #0ea5e9;
+            font-weight: 700;
+            font-size: 20px;
+            line-height: 1.1;
+        }
+        .footer-logo-text span {
+            font-size: 11px;
+            color: #64748b;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        /* Flip Animation Styles */
+        .flip-wrapper {
+            perspective: 1500px;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .flipper {
+            position: relative;
+            transition: transform 0.8s cubic-bezier(0.4, 0.2, 0.2, 1);
+            transform-style: preserve-3d;
+        }
+        .flipper.flipped {
+            transform: rotateY(180deg);
+        }
+        .front, .back {
+            top: 0;
+            left: 0;
+            width: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            transform-style: preserve-3d;
+        }
+        .front {
+            z-index: 2;
+            transform: rotateY(0deg);
+            position: relative; /* Allows wrapper to have height */
+        }
+        .back {
+            transform: rotateY(180deg);
+            position: absolute;
+            z-index: 1;
+        }
+        .flipper.flipped .front {
+            position: absolute;
+            z-index: 1;
+            pointer-events: none;
+        }
+        .flipper.flipped .back {
+            position: relative;
+            z-index: 2;
+            pointer-events: auto;
+        }
+
+        /* Green Theme for Open System */
+        .header-section-green {
+            background: linear-gradient(135deg, #064e3b 0%, #022c22 100%);
+        }
+        .megaphone-icon-green {
+            background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+        }
+        .change-no-badge-green {
+            background-color: #10b981;
+            box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
+        }
+        .subheader-tag-green i {
+            color: #34d399;
+        }
+        .subheader-title-green::after {
+            background-color: #34d399;
+        }
+        .status-pill-green {
+            background-color: #d1fae5 !important;
+            color: #065f46 !important;
+            border: 1px solid #a7f3d0 !important;
+        }
+        .status-pill-green::before {
+            background-color: #10b981 !important;
+        }
+        .alert-banner-green {
+            background: linear-gradient(to right, #ecfdf5, #d1fae5) !important;
+            border: 1px solid #6ee7b7 !important;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.15) !important;
+        }
+        .alert-banner-green::before {
+            background-color: #10b981 !important;
+        }
+        .alert-icon-green {
+            background-color: #10b981 !important;
+            box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3) !important;
+        }
+        .alert-title-green {
+            color: #065f46 !important;
+        }
+        .badge-green {
+            background-color: #10b981 !important;
+            color: white !important;
+            padding: 4px 16px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
+        }
+
+        /* Responsive Styles */
+        @media screen and (max-width: 1024px) {
+            .header-section { padding: 30px 40px; }
+            .content-section { padding: 40px; }
+            .footer-section { padding: 25px 40px; }
+            .subheader-title { font-size: 32px; }
+        }
+
+        @media screen and (max-width: 768px) {
+            body {
+                padding: 20px 10px;
+            }
+            .btn-success { margin-right: 0; }
+            .btn-secondary { margin-left: 0; }
+            .header-top {
+                flex-direction: column;
+                gap: 15px;
+            }
+            .header-right-top { align-items: flex-start; }
+            .header-section { padding: 25px 20px; }
+            .content-section { padding: 25px 20px; }
+            .grid-cards { grid-template-columns: 1fr; }
+            .alert-banner {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            .footer-section {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 20px;
+                padding: 25px 20px;
+            }
+            .footer-contacts {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+
+        .scroll-top-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background-color: #3b82f6;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: none;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            cursor: pointer;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+        .scroll-top-btn:hover {
+            background-color: #2563eb;
+            transform: scale(1.1);
+        }
+        @media print {
+            .toolbar-container, .toolbar, .toolbar-scroll-btn, .scroll-top-btn { display: none !important; }
+        }
+    </style>
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+
+    <!-- Action Toolbar Container with Scroll Controls -->
+    <div class="toolbar-container" id="toolbar-container">
+        <button type="button" class="toolbar-scroll-btn toolbar-scroll-btn-left" id="toolbarScrollLeft" onclick="scrollToolbar(-250)" title="เลื่อนแถบเมนูไปทางซ้าย" aria-label="เลื่อนซ้าย">
+            <i class="fa-solid fa-chevron-left"></i>
+        </button>
+
+        <div class="toolbar" id="toolbar">
+            <div class="toolbar-section toolbar-left">
+                <a href="{{ route('portal') }}" class="nav-btn nav-btn-back btn" title="กลับไปยังหน้าหลัก IT Portal">
+                    <i class="fa-solid fa-house"></i>
+                    <span>หน้าหลัก Portal</span>
+                </a>
+                <a href="{{ route('change_request') }}" class="nav-btn nav-btn-request btn btn-purple" style="text-decoration: none;" title="สลับไปยังระบบ Request Form">
+                    <i class="fa-solid fa-file-signature"></i>
+                    <span>Request Form</span>
+                </a>
+                <div class="toolbar-divider"></div>
+                <div class="select-wrapper">
+                    <i class="fa-solid fa-bullhorn select-icon"></i>
+                    <select id="select-change-no" class="custom-nav-select" onchange="loadAnnouncement()" title="เลือกรายการประกาศ หรือสร้างใหม่">
+                        <option value="">✨ สร้างใหม่ ({{ $next_change_no }})</option>
+                        @foreach($all_announcements as $ann)
+                            <option value="{{ $ann->change_no }}">{{ $ann->change_no }} - {{ $ann->subject }}</option>
+                        @endforeach
+                    </select>
+                    <i class="fa-solid fa-chevron-down select-chevron"></i>
+                </div>
+                <div class="toolbar-hint" title="สามารถคลิกที่ข้อความบนหน้าประกาศเพื่อแก้ไขได้โดยตรง">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                    <span>คลิกข้อความเพื่อแก้ไข</span>
+                </div>
+            </div>
+
+            <div class="toolbar-section toolbar-center">
+                <button class="nav-btn nav-btn-switch btn" onclick="toggleSystemState()" title="สลับการแสดงผลระหว่าง ปิดปรับปรุงระบบ / เปิดให้บริการระบบ">
+                    <i class="fa-solid fa-repeat"></i>
+                    <span>สลับหน้าเปิดระบบ</span>
+                </button>
+                <button class="nav-btn nav-btn-save btn" onclick="saveToDB()" title="บันทึกข้อมูลประกาศลงฐานข้อมูล">
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                    <span>Save to DB</span>
+                </button>
+                <button class="nav-btn nav-btn-image btn btn-primary" onclick="exportToImage()" title="บันทึกประกาศเป็นรูปภาพ PNG">
+                    <i class="fa-solid fa-image"></i>
+                    <span>Save Image</span>
+                </button>
+                <button class="nav-btn nav-btn-pdf btn btn-danger" onclick="exportToPDF()" title="ส่งออกประกาศเป็น PDF">
+                    <i class="fa-solid fa-file-pdf"></i>
+                    <span>Save PDF</span>
+                </button>
+            </div>
+
+            <div class="toolbar-section toolbar-right">
+                <a href="{{ route('report') }}" class="nav-btn nav-btn-report btn btn-secondary" title="ดูหน้ารายงานประวัติประกาศ">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span>View Report</span>
+                </a>
+            </div>
+        </div>
+
+        <button type="button" class="toolbar-scroll-btn toolbar-scroll-btn-right" id="toolbarScrollRight" onclick="scrollToolbar(250)" title="เลื่อนแถบเมนูไปทางขวา" aria-label="เลื่อนขวา">
+            <i class="fa-solid fa-chevron-right"></i>
+        </button>
+    </div>
+
+    <div class="flip-wrapper">
+        <div class="flipper" id="flipper">
+            <div class="front">
+                <div class="announcement-container" id="capture-area-close">
+                    <!-- Header -->
+        <div class="header-section">
+            <div class="header-top">
+                <div class="header-left-top">
+                    <div class="megaphone-icon">
+                        <i class="fa-solid fa-bullhorn"></i>
+                    </div>
+                    <div class="header-titles">
+                        <div class="title-small" contenteditable="true">IMPORTANT ANNOUNCEMENT</div>
+                        <div class="title-main" contenteditable="true">แจ้งกำหนดการติดตั้ง / แก้ไขระบบงาน</div>
+                    </div>
+                </div>
+                <div class="header-right-top">
+                    <div class="maintenance-notice" contenteditable="true">
+                        <i class="fa-solid fa-wrench"></i> Maintenance Notice
+                    </div>
+                    <div class="change-no-badge">
+                        Change No. : {{ $next_change_no }}
+                    </div>
+                </div>
+            </div>
+            <div class="subheader">
+                <div class="subheader-tag" contenteditable="true">
+                    <i class="fa-solid fa-thumbtack" style="transform: rotate(-45deg);"></i> ประกาศปิดปรับปรุงระบบ
+                </div>
+                <div class="subheader-title" contenteditable="true">แจ้งปิดปรับปรุงระบบ AX และ E-Stock</div>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="content-section">
+            <div class="grid-cards">
+                <!-- Card 1 -->
+                <div class="info-card">
+                    <div class="icon-box blue">
+                        <i class="fa-regular fa-calendar"></i>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-label">วันที่ดำเนินการ</div>
+                        <div class="card-value" contenteditable="true">{{ $default_operate_date_th }}</div>
+                        <div class="card-subtext" contenteditable="true">{{ $default_operate_date_en }}</div>
+                    </div>
+                </div>
+                <!-- Card 2 -->
+                <div class="info-card">
+                    <div class="icon-box orange">
+                        <i class="fa-regular fa-clock"></i>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-label">ช่วงเวลา</div>
+                        <div class="card-value" contenteditable="true">17:00 น. - 18:00 น.</div>
+                        <div class="card-subtext" contenteditable="true">ระยะเวลาประมาณ 1 ชั่วโมง</div>
+                    </div>
+                </div>
+                <!-- Card 3 -->
+                <div class="info-card">
+                    <div class="icon-box cyan">
+                        <i class="fa-solid fa-user-tie"></i>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-label">ผู้ดำเนินการ</div>
+                        <div class="card-value" contenteditable="true">QuickERP</div>
+                        <div class="card-subtext" contenteditable="true">ทีมงานที่รับผิดชอบ</div>
+                    </div>
+                </div>
+                <!-- Card 4 -->
+                <div class="info-card">
+                    <div class="icon-box red">
+                        <i class="fa-solid fa-hourglass-half"></i>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-label">สถานะ</div>
+                        <div class="card-value" contenteditable="true">รอการดำเนินการ</div>
+                        <div class="status-pill" contenteditable="true">Pending</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Alert Banner -->
+            <div class="alert-banner">
+                <div class="alert-icon">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+                <div class="alert-content">
+                    <div class="alert-title" contenteditable="true">
+                        <i class="fa-solid fa-bolt"></i> แจ้งเตือนสำคัญ
+                    </div>
+                    <div class="alert-message">
+                        <span class="badge-orange" contenteditable="true">ทุกสาขา</span>
+                        <div class="alert-message-text" contenteditable="true">จะไม่สามารถใช้งานระบบได้ ณ ช่วงเวลาดังกล่าว</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Note -->
+            <div class="note-section">
+                <i class="fa-solid fa-pen-to-square"></i> 
+                <div contenteditable="true" style="width: 100%;">หมายเหตุ : ปรับปรุงระบบให้มีประสิทธิภาพมากยิ่งขึ้น — ขออภัยในความไม่สะดวก</div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer-section">
+            <div class="footer-contacts">
+                <div class="contact-item">
+                    <div class="contact-icon">
+                        <i class="fa-solid fa-phone"></i>
+                    </div>
+                    <div class="contact-text">
+                        <div class="contact-label">IT CONTACT</div>
+                        <div class="contact-value" contenteditable="true">55999</div>
+                    </div>
+                </div>
+                <div class="contact-item">
+                    <div class="contact-icon">
+                        <i class="fa-solid fa-envelope"></i>
+                    </div>
+                    <div class="contact-text">
+                        <div class="contact-label">EMAIL GROUP</div>
+                        <div class="contact-value" contenteditable="true">ITTeam@thonglorpet.com</div>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-logo">
+                <img src="/static/logo.png" alt="Thonglor Pet Hospital Logo" style="height: 45px; width: auto; object-fit: contain;">
+            </div>
+        </div>
+    </div>
+    </div>
+    <!-- Back Face: Open System Announcement -->
+    <div class="back">
+        <div class="announcement-container" id="capture-area-open">
+            <!-- Header -->
+            <div class="header-section header-section-green">
+                <div class="header-top">
+                    <div class="header-left-top">
+                        <div class="megaphone-icon megaphone-icon-green">
+                            <i class="fa-solid fa-bullhorn"></i>
+                        </div>
+                        <div class="header-titles">
+                            <div class="title-small" contenteditable="true">SYSTEM UPDATE</div>
+                            <div class="title-main" contenteditable="true">แจ้งเปิดใช้งานระบบงาน</div>
+                        </div>
+                    </div>
+                    <div class="header-right-top">
+                        <div class="maintenance-notice" contenteditable="true">
+                            <i class="fa-solid fa-check-circle" style="color: #34d399;"></i> System Opened
+                        </div>
+                        <div class="change-no-badge change-no-badge-green" id="open-change-no-badge">
+                            Change No. : {{ $next_change_no }}
+                        </div>
+                    </div>
+                </div>
+                <div class="subheader">
+                    <div class="subheader-tag subheader-tag-green" contenteditable="true">
+                        <i class="fa-solid fa-check-circle"></i> ประกาศเปิดใช้งานระบบ
+                    </div>
+                    <div class="subheader-title subheader-title-green" id="open-subheader-title" contenteditable="true">แจ้งเปิดใช้งานระบบ AX และ E-Stock</div>
+                </div>
+            </div>
+
+            <!-- Content -->
+            <div class="content-section">
+                <div class="grid-cards">
+                    <!-- Card 1 -->
+                    <div class="info-card">
+                        <div class="icon-box blue">
+                            <i class="fa-regular fa-calendar"></i>
+                        </div>
+                        <div class="card-content">
+                            <div class="card-label">วันที่ดำเนินการ</div>
+                            <div class="card-value" id="open-operate-date" contenteditable="true">{{ $default_operate_date_th }}</div>
+                            <div class="card-subtext" id="open-operate-date-sub" contenteditable="true">{{ $default_operate_date_en }}</div>
+                        </div>
+                    </div>
+                    <!-- Card 2 -->
+                    <div class="info-card">
+                        <div class="icon-box orange">
+                            <i class="fa-regular fa-clock"></i>
+                        </div>
+                        <div class="card-content">
+                            <div class="card-label">ช่วงเวลา</div>
+                            <div class="card-value" id="open-operate-time" contenteditable="true">17:00 น. - 18:00 น.</div>
+                            <div class="card-subtext" id="open-operate-time-sub" contenteditable="true">ระยะเวลาประมาณ 1 ชั่วโมง</div>
+                        </div>
+                    </div>
+                    <!-- Card 3 -->
+                    <div class="info-card">
+                        <div class="icon-box cyan">
+                            <i class="fa-solid fa-user-tie"></i>
+                        </div>
+                        <div class="card-content">
+                            <div class="card-label">ผู้ดำเนินการ</div>
+                            <div class="card-value" id="open-user-operate" contenteditable="true">QuickERP</div>
+                            <div class="card-subtext" contenteditable="true">ทีมงานที่รับผิดชอบ</div>
+                        </div>
+                    </div>
+                    <!-- Card 4 -->
+                    <div class="info-card">
+                        <div class="icon-box" style="background-color: #ecfdf5; color: #059669; border: 1px solid #a7f3d0;">
+                            <i class="fa-solid fa-check"></i>
+                        </div>
+                        <div class="card-content">
+                            <div class="card-label">สถานะ</div>
+                            <div class="card-value" contenteditable="true">ดำเนินการเสร็จสิ้น</div>
+                            <div class="status-pill status-pill-green" contenteditable="true">Completed</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Alert Banner -->
+                <div class="alert-banner alert-banner-green">
+                    <div class="alert-icon alert-icon-green">
+                        <i class="fa-solid fa-check"></i>
+                    </div>
+                    <div class="alert-content">
+                        <div class="alert-title alert-title-green" contenteditable="true">
+                            <i class="fa-solid fa-bell"></i> ระบบพร้อมใช้งาน
+                        </div>
+                        <div class="alert-message">
+                            <span class="badge-green" contenteditable="true">ทุกสาขา</span>
+                            <span contenteditable="true">สามารถเข้าใช้งานระบบได้ตามปกติแล้วครับ</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Note -->
+                <div class="note-section">
+                    <i class="fa-solid fa-pen-to-square"></i> 
+                    <div contenteditable="true" style="width: 100%;">หมายเหตุ : การปรับปรุงระบบเสร็จสมบูรณ์ — ขอบคุณสำหรับความร่วมมือครับ</div>
+                </div>
+            </div>
+
+            <!-- Footer placeholder for Open System -->
+            <div class="footer-section">
+                <div class="footer-contacts">
+                    <div class="contact-item">
+                        <div class="contact-icon"><i class="fa-solid fa-phone"></i></div>
+                        <div class="contact-text">
+                            <div class="contact-label">IT CONTACT</div>
+                            <div class="contact-value" contenteditable="true">55999</div>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <div class="contact-icon"><i class="fa-solid fa-envelope"></i></div>
+                        <div class="contact-text">
+                            <div class="contact-label">EMAIL GROUP</div>
+                            <div class="contact-value" contenteditable="true">ITTeam@thonglorpet.com</div>
+                        </div>
+                    </div>
+                </div>
+                <!-- The footer-logo will be cloned here via JS to avoid duplicating huge base64 -->
+            </div>
+        </div>
+    </div>
+    </div>
+    </div>
+
+    <!-- Scripts for Exporting -->
+    <script>
+        // Clone the logo to the back face so we don't have to duplicate the huge base64 string
+        document.addEventListener('DOMContentLoaded', function() {
+            const logo = document.querySelector('#capture-area-close .footer-logo');
+            if (logo) {
+                const backFooter = document.querySelector('#capture-area-open .footer-section');
+                if (backFooter) {
+                    backFooter.appendChild(logo.cloneNode(true));
+                }
+            }
+        });
+    </script>
+
+    <!-- Scripts for Exporting -->
+    <script>
+        let isSavedToDB = false;
+
+        function scrollToolbar(offset) {
+            const toolbar = document.getElementById('toolbar');
+            if (toolbar) {
+                toolbar.scrollBy({ left: offset, behavior: 'smooth' });
+                setTimeout(updateToolbarScrollButtons, 300);
+            }
+        }
+
+        function updateToolbarScrollButtons() {
+            const toolbar = document.getElementById('toolbar');
+            const leftBtn = document.getElementById('toolbarScrollLeft');
+            const rightBtn = document.getElementById('toolbarScrollRight');
+            if (!toolbar || !leftBtn || !rightBtn) return;
+
+            const isScrollable = toolbar.scrollWidth > toolbar.clientWidth + 2;
+            if (!isScrollable) {
+                leftBtn.disabled = true;
+                rightBtn.disabled = true;
+                return;
+            }
+
+            leftBtn.style.display = 'flex';
+            rightBtn.style.display = 'flex';
+
+            const atLeft = toolbar.scrollLeft <= 5;
+            const atRight = toolbar.scrollLeft + toolbar.clientWidth >= toolbar.scrollWidth - 5;
+
+            leftBtn.disabled = atLeft;
+            rightBtn.disabled = atRight;
+        }
+
+        // Initialize Toolbar scroll handlers on DOM ready
+        document.addEventListener('DOMContentLoaded', function() {
+            const toolbar = document.getElementById('toolbar');
+            if (toolbar) {
+                toolbar.addEventListener('scroll', updateToolbarScrollButtons, { passive: true });
+                window.addEventListener('resize', updateToolbarScrollButtons);
+                window.addEventListener('load', updateToolbarScrollButtons);
+                if (document.fonts && document.fonts.ready) {
+                    document.fonts.ready.then(updateToolbarScrollButtons);
+                }
+                updateToolbarScrollButtons();
+                setTimeout(updateToolbarScrollButtons, 100);
+                setTimeout(updateToolbarScrollButtons, 500);
+
+                // Mouse wheel horizontal scrolling
+                toolbar.addEventListener('wheel', function(e) {
+                    if (toolbar.scrollWidth > toolbar.clientWidth && e.deltaY !== 0) {
+                        e.preventDefault();
+                        toolbar.scrollLeft += e.deltaY;
+                        updateToolbarScrollButtons();
+                    }
+                }, { passive: false });
+
+                // Mouse drag scrolling
+                let isDragging = false;
+                let startX = 0;
+                let startScroll = 0;
+
+                toolbar.addEventListener('mousedown', function(e) {
+                    if (e.target.closest('button, a, select, input')) return;
+                    isDragging = true;
+                    startX = e.pageX;
+                    startScroll = toolbar.scrollLeft;
+                    toolbar.style.cursor = 'grabbing';
+                });
+
+                window.addEventListener('mousemove', function(e) {
+                    if (!isDragging) return;
+                    const walk = (e.pageX - startX) * 1.2;
+                    toolbar.scrollLeft = startScroll - walk;
+                    updateToolbarScrollButtons();
+                });
+
+                window.addEventListener('mouseup', function() {
+                    if (isDragging) {
+                        isDragging = false;
+                        toolbar.style.cursor = '';
+                    }
+                });
+            }
+        });
+
+        async function loadAnnouncement() {
+            const changeNo = document.getElementById('select-change-no').value;
+            if (!changeNo) {
+                window.location.href = "{{ route('announcement') }}";
+                return;
+            }
+            try {
+                const response = await fetch(`/api/get_announcement/?change_no=${encodeURIComponent(changeNo)}`);
+                const result = await response.json();
+                
+                if (result.status === 'success' || result.success) {
+                    if (window.history && window.history.replaceState) {
+                        window.history.replaceState(null, '', "{{ route('announcement') }}?change_no=" + encodeURIComponent(changeNo));
+                    }
+                    const data = result.data;
+                    document.querySelector('.change-no-badge').innerHTML = `Change No. : ${data.change_no}`;
+                    document.querySelector('.subheader-title').innerText = data.subject;
+                    
+                    const infoCards = document.querySelectorAll('.info-card .card-value');
+                    if(infoCards[0]) infoCards[0].innerText = data.operate_date;
+                    if(infoCards[1]) infoCards[1].innerText = data.operate_time;
+                    if(infoCards[2]) infoCards[2].innerText = data.user_operate;
+                    
+                    const remarkDiv = document.querySelector('.note-section div[contenteditable="true"]');
+                    if(remarkDiv) remarkDiv.innerText = data.remark;
+
+                    const alertMessageEl = document.querySelector('.alert-message .alert-message-text');
+                    const alertBadgeEl = document.querySelector('.alert-message .badge-orange');
+                    if (alertMessageEl && data.alert_message) alertMessageEl.innerText = data.alert_message;
+                    if (alertBadgeEl && data.alert_badge) alertBadgeEl.innerText = data.alert_badge;
+
+                    if(infoCards[0]) infoCards[0].dispatchEvent(new Event('input'));
+                    if(infoCards[1]) infoCards[1].dispatchEvent(new Event('input'));
+                    
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'โหลดข้อมูลสำเร็จ',
+                        text: `โหลดข้อมูล ${data.change_no} เรียบร้อยแล้ว`,
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'ผิดพลาด',
+                        text: result.message || 'เกิดข้อผิดพลาดในการโหลดข้อมูล'
+                    });
+                }
+            } catch (error) {
+                console.error("Error loading announcement:", error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'ผิดพลาด',
+                    text: 'เกิดข้อผิดพลาดในการดึงข้อมูล'
+                });
+            }
+        }
+
+        var isSystemOpen = false;
+
+        function toggleSystemState() {
+            const flipper = document.getElementById('flipper');
+            const switchBtn = document.querySelector('.nav-btn-switch');
+            const switchBtnText = switchBtn ? switchBtn.querySelector('span') : null;
+            const switchBtnIcon = switchBtn ? switchBtn.querySelector('i') : null;
+            
+            if (!isSystemOpen) {
+                // Copy data from Close to Open before flipping
+                try {
+                    const closeSubjectElem = document.querySelector('#capture-area-close .subheader-title');
+                    if (closeSubjectElem) {
+                        const closeSubject = closeSubjectElem.innerText.replace('แจ้งปิดปรับปรุงระบบ', 'แจ้งเปิดใช้งานระบบ');
+                        const openSubheader = document.getElementById('open-subheader-title');
+                        if (openSubheader) openSubheader.innerText = closeSubject;
+                    }
+                    
+                    const changeNoBadgeElem = document.querySelector('#capture-area-close .change-no-badge');
+                    if (changeNoBadgeElem) {
+                        const changeNoBadge = changeNoBadgeElem.innerText;
+                        const openChangeNoBadge = document.getElementById('open-change-no-badge');
+                        if (openChangeNoBadge) openChangeNoBadge.innerText = changeNoBadge;
+                    }
+                    
+                    const infoCards = document.querySelectorAll('#capture-area-close .info-card .card-value');
+                    const subCards = document.querySelectorAll('#capture-area-close .info-card .card-subtext');
+                    
+                    const openOpDate = document.getElementById('open-operate-date');
+                    const openOpDateSub = document.getElementById('open-operate-date-sub');
+                    const openOpTime = document.getElementById('open-operate-time');
+                    const openOpTimeSub = document.getElementById('open-operate-time-sub');
+                    const openUserOp = document.getElementById('open-user-operate');
+
+                    if (infoCards[0] && openOpDate) openOpDate.innerText = infoCards[0].innerText;
+                    if (subCards[0] && openOpDateSub) openOpDateSub.innerText = subCards[0].innerText;
+                    
+                    if (infoCards[1] && openOpTime) openOpTime.innerText = infoCards[1].innerText;
+                    if (subCards[1] && openOpTimeSub) openOpTimeSub.innerText = subCards[1].innerText;
+                    
+                    if (infoCards[2] && openUserOp) openUserOp.innerText = infoCards[2].innerText;
+                } catch (e) {
+                    console.log("Error syncing data:", e);
+                }
+                
+                if (flipper) flipper.classList.add('flipped');
+                isSystemOpen = true;
+                if (switchBtn) {
+                    switchBtn.classList.add('active-green');
+                    if (switchBtnText) switchBtnText.innerText = 'สลับหน้าปิดระบบ';
+                    if (switchBtnIcon) switchBtnIcon.className = 'fa-solid fa-rotate-left';
+                }
+            } else {
+                if (flipper) flipper.classList.remove('flipped');
+                isSystemOpen = false;
+                if (switchBtn) {
+                    switchBtn.classList.remove('active-green');
+                    if (switchBtnText) switchBtnText.innerText = 'สลับหน้าเปิดระบบ';
+                    if (switchBtnIcon) switchBtnIcon.className = 'fa-solid fa-repeat';
+                }
+            }
+        }
+
+        function removeEditingOutlines() {
+            // Remove focus before taking screenshot to avoid dotted lines
+            if(document.activeElement && document.activeElement.blur) {
+                document.activeElement.blur();
+            }
+        }
+
+        async function exportToImage() {
+            const changeNoElement = document.querySelector('.change-no-badge');
+            let changeNo = '';
+            if (changeNoElement) {
+                changeNo = changeNoElement.innerText.replace('Change No. :', '').trim();
+            }
+            
+            try {
+                const response = await fetch(`/api/check_change_no/?change_no=${changeNo}`);
+                const data = await response.json();
+                
+                if (!data.exists) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'แจ้งเตือน',
+                        text: `Change No. : ${changeNo} ยังไม่ถูกบันทึกใน Database กรุณากดปุ่ม Save to DB เพื่อบันทึกข้อมูลก่อนทำการ Save as Image ครับ`,
+                    });
+                    return;
+                }
+            } catch (error) {
+                console.error("Error checking change no:", error);
+            }
+            
+            removeEditingOutlines();
+            const btnPrimary = document.querySelector('.btn-primary');
+            const originalText = btnPrimary.innerHTML;
+            btnPrimary.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Generating...';
+            
+            const targetId = isSystemOpen ? 'capture-area-open' : 'capture-area-close';
+            const element = document.getElementById(targetId);
+            const originalBoxShadow = element.style.boxShadow;
+            const originalPosition = element.style.position;
+            const originalLeft = element.style.left;
+            const originalTop = element.style.top;
+            const originalMargin = element.style.margin;
+            const originalWidth = element.style.width;
+            const originalMaxWidth = element.style.maxWidth;
+            
+            element.style.boxShadow = 'none';
+            element.style.width = '1200px';
+            element.style.maxWidth = 'none';
+            // Force element to top-left to avoid fractional pixel rendering which causes white borders
+            element.style.position = 'absolute';
+            element.style.left = '0px';
+            element.style.top = '0px';
+            element.style.margin = '0px';
+            window.scrollTo(0,0);
+            
+            try {
+                const canvas = await html2canvas(element, { 
+                    scale: 2, 
+                    useCORS: true,
+                    backgroundColor: null,
+                    width: element.offsetWidth,
+                    height: element.offsetHeight,
+                    scrollX: 0,
+                    scrollY: 0
+                });
+                
+                const imageData = canvas.toDataURL('image/png');
+                const imgFileName = `IT_Announcement_${changeNo || 'latest'}.png`;
+                const link = document.createElement('a');
+                link.download = imgFileName;
+                link.href = imageData;
+                link.click();
+
+                // Also save image directly to server media directory for host inspection
+                try {
+                    fetch('/api/save_exported_image/', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            image_data: imageData,
+                            filename: imgFileName,
+                            category: 'announcements'
+                        })
+                    });
+                } catch (saveErr) {
+                    console.error("Error saving exported image to media:", saveErr);
+                }
+            } catch (error) {
+                console.error("Error generating image:", error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'ผิดพลาด',
+                    text: 'เกิดข้อผิดพลาดในการสร้างรูปภาพ',
+                });
+            } finally {
+                element.style.boxShadow = originalBoxShadow;
+                element.style.position = originalPosition;
+                element.style.left = originalLeft;
+                element.style.top = originalTop;
+                element.style.margin = originalMargin;
+                element.style.width = originalWidth;
+                element.style.maxWidth = originalMaxWidth;
+                btnPrimary.innerHTML = originalText;
+            }
+        }
+
+        async function exportToPDF() {
+            const changeNoElement = document.querySelector('.change-no-badge');
+            let changeNo = '';
+            if (changeNoElement) {
+                changeNo = changeNoElement.innerText.replace('Change No. :', '').trim();
+            }
+            
+            try {
+                const response = await fetch(`/api/check_change_no/?change_no=${changeNo}`);
+                const data = await response.json();
+                
+                if (!data.exists) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'แจ้งเตือน',
+                        text: `Change No. : ${changeNo} ยังไม่ถูกบันทึกใน Database กรุณากดปุ่ม Save to DB เพื่อบันทึกข้อมูลก่อนทำการ Save as PDF ครับ`,
+                    });
+                    return;
+                }
+            } catch (error) {
+                console.error("Error checking change no:", error);
+            }
+            
+            removeEditingOutlines();
+            const btnDanger = document.querySelector('.btn-danger');
+            const originalText = btnDanger.innerHTML;
+            btnDanger.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Generating...';
+            
+            const targetId = isSystemOpen ? 'capture-area-open' : 'capture-area-close';
+            const element = document.getElementById(targetId);
+            const originalBoxShadow = element.style.boxShadow;
+            const originalPosition = element.style.position;
+            const originalLeft = element.style.left;
+            const originalTop = element.style.top;
+            const originalMargin = element.style.margin;
+            
+            element.style.boxShadow = 'none';
+            // Force element to top-left to avoid fractional pixel rendering which causes white borders
+            element.style.position = 'absolute';
+            element.style.left = '0px';
+            element.style.top = '0px';
+            element.style.margin = '0px';
+            window.scrollTo(0,0);
+            
+            try {
+                const canvas = await html2canvas(element, { 
+                    scale: 2, 
+                    useCORS: true,
+                    backgroundColor: '#ffffff',
+                    width: element.offsetWidth,
+                    height: element.offsetHeight,
+                    scrollX: 0,
+                    scrollY: 0
+                });
+                
+                const imgData = canvas.toDataURL('image/png');
+                
+                // Calculate dimensions (A4 size is approx 1:1.414, but we'll use landscape dimensions matching our element)
+                const pdfWidth = element.offsetWidth;
+                const pdfHeight = element.offsetHeight;
+                
+                const { jsPDF } = window.jspdf;
+                // Create PDF with exactly the dimensions of our element
+                const pdf = new jsPDF({
+                    orientation: 'landscape',
+                    unit: 'px',
+                    format: [pdfWidth, pdfHeight]
+                });
+                
+                pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+                pdf.save('IT_Announcement.pdf');
+            } catch (error) {
+                console.error("Error generating PDF:", error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'ผิดพลาด',
+                    text: 'เกิดข้อผิดพลาดในการสร้าง PDF',
+                });
+            } finally {
+                element.style.boxShadow = originalBoxShadow;
+                element.style.position = originalPosition;
+                element.style.left = originalLeft;
+                element.style.top = originalTop;
+                element.style.margin = originalMargin;
+                element.style.width = originalWidth;
+                element.style.maxWidth = originalMaxWidth;
+                btnDanger.innerHTML = originalText;
+            }
+        }
+
+        async function saveToDB() {
+            const result = await Swal.fire({
+                title: 'ยืนยันการบันทึกข้อมูล?',
+                text: "คุณต้องการบันทึกข้อมูลการแจ้งเตือนนี้ลงฐานข้อมูลใช่หรือไม่",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#10b981',
+                cancelButtonColor: '#64748b',
+                confirmButtonText: 'ใช่, บันทึกข้อมูล',
+                cancelButtonText: 'ยกเลิก'
+            });
+
+            if (!result.isConfirmed) {
+                return;
+            }
+
+            const btn = document.querySelector('.btn[onclick="saveToDB()"]');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
+            btn.disabled = true;
+
+            try {
+                const subject = document.querySelector('.subheader-title').innerText;
+                const infoCards = document.querySelectorAll('.info-card .card-value');
+                const operate_date = infoCards[0] ? infoCards[0].innerText : '';
+                const operate_time = infoCards[1] ? infoCards[1].innerText : '';
+                const user_operate = infoCards[2] ? infoCards[2].innerText : '';
+                const remarkDiv = document.querySelector('.note-section div[contenteditable="true"]');
+                const remark = remarkDiv ? remarkDiv.innerText : '';
+
+                const alertMessageEl = document.querySelector('.alert-message .alert-message-text');
+                const alertBadgeEl = document.querySelector('.alert-message .badge-orange');
+                const alert_message = alertMessageEl ? alertMessageEl.innerText.replace(/\r\n/g, '\n') : '';
+                const alert_badge = alertBadgeEl ? alertBadgeEl.innerText : '';
+
+                const badge = document.querySelector('.change-no-badge');
+                let change_no = '';
+                if (badge) {
+                    change_no = badge.innerText.replace('Change No. :', '').trim();
+                }
+
+                const response = await fetch('/api/save_announcement/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        change_no: change_no,
+                        subject: subject,
+                        operate_date: operate_date,
+                        operate_time: operate_time,
+                        user_operate: user_operate,
+                        remark: remark,
+                        alert_message: alert_message,
+                        alert_badge: alert_badge
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (result.status === 'success' || result.success) {
+                    isSavedToDB = true;
+                    const badge = document.querySelector('.change-no-badge');
+                    if (badge) {
+                        badge.innerHTML = `Change No. : ${result.change_no}`;
+                    }
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'สำเร็จ',
+                        text: 'บันทึกข้อมูลเรียบร้อยแล้ว: ' + result.change_no,
+                        timer: 2000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        window.location.href = "{{ route('announcement') }}?change_no=" + result.change_no;
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'ผิดพลาด',
+                        text: 'เกิดข้อผิดพลาด: ' + (result.message || 'ไม่สามารถบันทึกข้อมูลได้'),
+                    });
+                }
+            } catch (error) {
+                console.error("Error saving to DB:", error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'ผิดพลาด',
+                    text: 'เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล',
+                });
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const infoCards = document.querySelectorAll('.info-card');
+
+            infoCards.forEach(card => {
+                const label = card.querySelector('.card-label');
+                if (label && label.innerText.trim() === 'วันที่ดำเนินการ') {
+                    const dateCardValue = card.querySelector('.card-value');
+                    const dateCardSubtext = card.querySelector('.card-subtext');
+                    
+                    if (dateCardValue && dateCardSubtext) {
+                        dateCardValue.addEventListener('input', function() {
+                            const thaiText = this.innerText.trim();
+                            const thaiMonths = {
+                                'มกราคม': 'January', 'กุมภาพันธ์': 'February', 'มีนาคม': 'March',
+                                'เมษายน': 'April', 'พฤษภาคม': 'May', 'มิถุนายน': 'June',
+                                'กรกฎาคม': 'July', 'สิงหาคม': 'August', 'กันยายน': 'September',
+                                'ตุลาคม': 'October', 'พฤศจิกายน': 'November', 'ธันวาคม': 'December'
+                            };
+
+                            const thaiDays = {
+                                'วันอาทิตย์': 'Sunday', 'วันจันทร์': 'Monday', 'วันอังคาร': 'Tuesday',
+                                'วันพุธ': 'Wednesday', 'วันพฤหัสบดี': 'Thursday', 'วันพฤหัส': 'Thursday',
+                                'วันพฤสบดี': 'Thursday', 'วันศุกร์': 'Friday', 'วันเสาร์': 'Saturday'
+                            };
+
+                            const regex = /(วัน[ก-๙]+)\s*ที่\s*(\d{1,2})\s*([ก-๙]+)\s*(\d{4})/;
+                            const match = thaiText.match(regex);
+
+                            if (match) {
+                                let dayNameThai = match[1];
+                                let dayDate = match[2];
+                                let monthThai = match[3];
+                                let yearThai = parseInt(match[4]);
+
+                                let dayNameEng = "Weekday";
+                                for (let key in thaiDays) {
+                                    if (dayNameThai.includes(key) || key.includes(dayNameThai)) {
+                                        dayNameEng = thaiDays[key];
+                                        break;
+                                    }
+                                }
+
+                                let monthEng = thaiMonths[monthThai] || "Month";
+                                let yearEng = yearThai > 2500 ? yearThai - 543 : yearThai;
+
+                                dateCardSubtext.innerText = `${dayNameEng}, ${dayDate} ${monthEng} ${yearEng}`;
+                            }
+                        });
+                    }
+                } else if (label && label.innerText.trim() === 'ช่วงเวลา') {
+                    const timeCardValue = card.querySelector('.card-value');
+                    const timeCardSubtext = card.querySelector('.card-subtext');
+                    
+                    if (timeCardValue && timeCardSubtext) {
+                        timeCardValue.addEventListener('input', function() {
+                            const timeText = this.innerText.trim();
+                            const regex = /(\d{1,2})[:.](\d{2})\s*(?:น\.?)?\s*(?:-|ถึง)\s*(\d{1,2})[:.](\d{2})/;
+                            const match = timeText.match(regex);
+
+                            if (match) {
+                                const startHour = parseInt(match[1]);
+                                const startMin = parseInt(match[2]);
+                                const endHour = parseInt(match[3]);
+                                const endMin = parseInt(match[4]);
+
+                                let startTotalMins = startHour * 60 + startMin;
+                                let endTotalMins = endHour * 60 + endMin;
+
+                                if (endTotalMins < startTotalMins) {
+                                    endTotalMins += 24 * 60;
+                                }
+
+                                const diffMins = endTotalMins - startTotalMins;
+                                const hours = Math.floor(diffMins / 60);
+                                const mins = diffMins % 60;
+
+                                let durationText = 'ระยะเวลาประมาณ ';
+                                if (hours > 0) {
+                                    durationText += `${hours} ชั่วโมง`;
+                                }
+                                if (mins > 0) {
+                                    durationText += ` ${mins} นาที`;
+                                }
+
+                                timeCardSubtext.innerText = durationText;
+                            }
+                        });
+                    }
+                }
+            });
+        });
+    </script>
+
+    <!-- Basic Source Code Protection -->
+    <script>
+        // Disable Right Click
+        document.addEventListener('contextmenu', event => event.preventDefault());
+
+        // Disable Ctrl+U / Cmd+U (View Source)
+        document.addEventListener('keydown', function(e) {
+            if ((e.ctrlKey || e.metaKey) && (e.key === 'u' || e.key === 'U')) {
+                e.preventDefault();
+                return false;
+            }
+        });
+    </script>
+
+    <!-- Scroll to Top Button -->
+    <button id="scrollTopBtn" class="scroll-top-btn" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" title="Scroll to Top">
+        <i class="fa-solid fa-arrow-up"></i>
+    </button>
+
+    <script>
+        // Scroll to Top functionality
+        window.addEventListener('scroll', function() {
+            const btn = document.getElementById('scrollTopBtn');
+            if (window.scrollY > 300) {
+                btn.style.display = 'flex';
+            } else {
+                btn.style.display = 'none';
+            }
+        });
+
+        // Auto load saved request if change_no is in URL
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const change_no = urlParams.get('change_no');
+            if (change_no) {
+                const select = document.getElementById('select-change-no');
+                if (select) {
+                    let exists = false;
+                    for (let i = 0; i < select.options.length; i++) {
+                        if (select.options[i].value === change_no) {
+                            exists = true;
+                            break;
+                        }
+                    }
+                    if (!exists) {
+                        const newOption = new Option(change_no, change_no, true, true);
+                        select.add(newOption);
+                    }
+                    select.value = change_no;
+                    setTimeout(() => { loadAnnouncement(); }, 100);
+                }
+            }
+        });
+    </script>
+</body>
+</html>

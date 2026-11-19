@@ -5,41 +5,35 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: it_announcement_web
+    container_name: it_announcement_laravel_web
     restart: unless-stopped
     ports:
-      - "${PORT:-5889}:5889"
-
-    # Persistent Volumes
-    # Mount host SQLite db and media directory so host data is directly accessible and preserved across Git pulls
+      - "${PORT:-5897}:5897"
     volumes:
-      - ${SQLITE_DB_PATH:-/home/admintlp/it-annoucement-tlp/db.sqlite3}:/app/db.sqlite3
-      - ${MEDIA_PATH:-/home/admintlp/it-annoucement-tlp/media}:/app/media
-
-    # Environment variables
+      - ./storage/app:/app/storage/app
+      - ./.env:/app/.env
     environment:
-      - DEBUG=${DEBUG:-0}
-      - SECRET_KEY=${SECRET_KEY:-django-insecure-9+jdk(%uodqv4yk!2do+a#41&k49=agn8bte4c8d=^is$&-83%}
-      - ALLOWED_HOSTS=${ALLOWED_HOSTS:-*}
-      - CSRF_TRUSTED_ORIGINS=${CSRF_TRUSTED_ORIGINS:-https://annouce.thonglorpet.com}
-      - USE_HTTPS=${USE_HTTPS:-1}
-      - SQLITE_PATH=/app/db.sqlite3
-      - SQLITE_JOURNAL_MODE=${SQLITE_JOURNAL_MODE:-DELETE}
-      - PYTHONUNBUFFERED=1
-
+      - APP_ENV=${APP_ENV:-production}
+      - APP_DEBUG=${APP_DEBUG:-false}
+      - APP_URL=${APP_URL:-https://annouce.thonglorpet.com}
+      - DB_CONNECTION=pgsql
+      - DB_HOST=${DB_HOST:-192.168.98.254}
+      - DB_PORT=${DB_PORT:-5434}
+      - DB_DATABASE=${DB_DATABASE:-imedx_tlp_for_it}
+      - DB_USERNAME=${DB_USERNAME:-eservices}
+      - DB_PASSWORD=${DB_PASSWORD:-Tlp@2023}
+      - DB_SCHEMA=${DB_SCHEMA:-intra_tl}
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://127.0.0.1:5889/ || exit 1"]
+      test: ["CMD-SHELL", "curl -f http://127.0.0.1:5897/up || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 20s
-
     logging:
       driver: "json-file"
       options:
         max-size: "20m"
         max-file: "5"
-
     networks:
       - app_network
 

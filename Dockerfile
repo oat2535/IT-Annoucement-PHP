@@ -1,40 +1,51 @@
-# เลือกใช้ Python 3.12 (แบบ Alpine) เป็น Image หลัก เพื่อลดขนาดไฟล์และเพิ่มความปลอดภัย
-FROM python:3.12-alpine
+FROM php:8.3-cli-alpine
 
-# ตั้งค่าตัวแปรสิ่งแวดล้อม (Environment Variables)
-ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1
+# Install system dependencies & build tools
+RUN apk add --no-cache \
+    postgresql-dev \
+    libpng-dev \
+    libjpeg-turbo-dev \
+    freetype-dev \
+    libzip-dev \
+    icu-dev \
+    curl \
+    git \
+    unzip \
+    bash \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-configure intl \
+    && docker-php-ext-install -j$(nproc) \
+        pdo \
+        pdo_pgsql \
+        pgsql \
+        gd \
+        zip \
+        intl \
+        bcmath \
+        opcache
 
-# กำหนดโฟลเดอร์ทำงานภายใน Container เป็น /app
+# Install Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# Set working directory
 WORKDIR /app
 
-# ขั้นตอนที่ 1: ติดตั้ง System Packages (วางไว้บนสุดเพื่อให้ Docker Cache ชั้นนี้ถาวร ไม่ต้องดาวน์โหลดใหม่ทุกครั้งที่แก้โค้ด)
-# ปรับตัดฟอนต์ CJK (ภาษาจีน/ญี่ปุ่น/เกาหลี) และฟอนต์ที่ไม่จำเป็นออก ช่วยประหยัดเน็ตและลดขนาดดาวน์โหลดกว่า 600MB
-RUN apk add --no-cache curl libreoffice font-noto-thai
+# Copy application files
+COPY . .
 
-# ขั้นตอนที่ 2: ติดตั้ง Python Dependencies (แยก Layer เพื่อให้ Cache ถาวรหาก requirements.txt ไม่เปลี่ยนแปลง)
-COPY requirements.txt /app/
-RUN pip install --no-cache-dir -r requirements.txt
+# Install dependencies (optimized for production)
+RUN composer install --no-dev --optimize-autoloader --no-interaction
 
-# ขั้นตอนที่ 3: คัดลอก Font ภาษาไทยเฉพาะของระบบ (Tahoma, TH Sarabun, Angsana, Cordia)
-COPY fonts/ /usr/share/fonts/custom/
-RUN fc-cache -f
+# Prepare permissions
+RUN chown -R www-data:www-data /app/storage /app/bootstrap/cache \
+    && chmod -R 775 /app/storage /app/bootstrap/cache
 
-# ขั้นตอนที่ 4: คัดลอกไฟล์โปรเจคทั้งหมด เข้าสู่ Container (วางไว้ท้ายสุดเพราะโค้ดมีการแก้ไขบ่อยที่สุด)
-COPY . /app/
+# Expose port
+EXPOSE 5897
 
-# เตรียมไดเรกทอรีสำหรับ persistent data & media และแปลง line-endings ป้องกันปัญหา CRLF
-RUN mkdir -p /app/data /app/media /app/staticfiles && \
-    sed -i 's/\r$//' /app/entrypoint.sh && \
-    chmod +x /app/entrypoint.sh
+# Healthcheck
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+  CMD curl -f http://127.0.0.1:5897/up || exit 1
 
-# เปิด Port 5889 สำหรับการเชื่อมต่อ
-EXPOSE 5889
-
-# กำหนด Entrypoint Script สำหรับการ Migrate & Collectstatic อัตโนมัติทุกครั้งที่ Deploy
-ENTRYPOINT ["/app/entrypoint.sh"]
-
-# คำสั่งเริ่มต้นเมื่อ Container ทำงาน (รัน Server ผ่าน Gunicorn สำหรับ Production)
-# เพิ่ม --workers 3 และ --threads 2 เพื่อรองรับ Request พร้อมกันหลายๆ ตัว ป้องกันปัญหาหน้าเว็บโหลดช้า
-# เพิ่ม --forwarded-allow-ips "*" เพื่อให้รองรับ Header X-Forwarded-Proto จาก Reverse Proxy สำหรับ HTTPS
-CMD ["gunicorn", "it_announcement_project.wsgi:application", "--bind", "0.0.0.0:5889", "--workers", "3", "--threads", "2", "--forwarded-allow-ips", "*"]
+# Start built-in server or octane/roadrunner
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=5897"]

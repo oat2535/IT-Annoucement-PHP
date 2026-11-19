@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Change Request Report</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-color: #f1f5f9;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --primary-color: #3b82f6;
+            --primary-hover: #2563eb;
+            --table-header: #f8fafc;
+            --table-hover: #f1f5f9;
+        }
+
+        body {
+            font-family: 'Kanit', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1400px;
+        }
+
+        /* Header */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            position: sticky;
+            top: 20px;
+            z-index: 1000;
+            background-color: rgba(241, 245, 249, 0.95);
+            backdrop-filter: blur(5px);
+            padding: 15px 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+        
+        .page-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .page-title i {
+            color: var(--primary-color);
+        }
+        
+        .btn-back {
+            background-color: white;
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+            padding: 8px 16px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .btn-back:hover {
+            color: var(--text-main);
+            border-color: #cbd5e1;
+            background-color: #f8fafc;
+            transform: translateY(-1px);
+        }
+
+        /* Filter Section */
+        .filter-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            margin-bottom: 24px;
+        }
+
+        .filter-form {
+            display: flex;
+            align-items: flex-end;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .form-control {
+            font-family: 'Kanit', sans-serif;
+            padding: 10px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 15px;
+            color: var(--text-main);
+            background-color: #fff;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            outline: none;
+            min-width: 200px;
+        }
+        
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .btn-search {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-family: 'Kanit', sans-serif;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+            box-shadow: 0 4px 6px rgba(59, 130, 246, 0.2);
+            height: 43px; /* Match input height */
+        }
+        
+        .btn-search:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(59, 130, 246, 0.3);
+        }
+        
+        .btn-clear {
+            background-color: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-family: 'Kanit', sans-serif;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+            height: 43px;
+            box-sizing: border-box;
+        }
+        .btn-clear:hover {
+            background-color: #f8fafc;
+            color: var(--text-main);
+        }
+        
+        .btn-export {
+            background-color: #10b981;
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-family: 'Kanit', sans-serif;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+            box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2);
+            height: 43px;
+            box-sizing: border-box;
+            margin-left: auto;
+        }
+        .btn-export:hover {
+            background-color: #059669;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        /* Table Section */
+        .table-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            overflow: hidden;
+        }
+
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th {
+            background-color: var(--table-header);
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 14px;
+            padding: 16px 20px;
+            border-bottom: 2px solid var(--border-color);
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-main);
+            font-size: 15px;
+            vertical-align: top;
+        }
+
+        tbody tr {
+            transition: background-color 0.2s;
+        }
+
+        tbody tr:hover {
+            background-color: var(--table-hover);
+        }
+
+        /* Badges & Special Formatting */
+        .id-badge {
+            background-color: #e2e8f0;
+            color: #475569;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .change-badge {
+            background-color: #fee2e2;
+            color: #b91c1c;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+
+        .date-cell {
+            white-space: nowrap;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .subject-cell {
+            font-weight: 500;
+            min-width: 200px;
+        }
+        
+        .remark-cell {
+            color: var(--text-secondary);
+            font-size: 14px;
+            max-width: 300px;
+        }
+
+        .empty-state {
+            padding: 60px 20px;
+            text-align: center;
+            color: var(--text-secondary);
+        }
+        .empty-state i {
+            font-size: 48px;
+            color: #cbd5e1;
+            margin-bottom: 16px;
+        }
+        .empty-state h3 {
+            margin: 0 0 8px 0;
+            color: var(--text-main);
+        }
+        .empty-state p {
+            margin: 0;
+        }
+
+        .scroll-top-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background-color: #3b82f6;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: none;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            cursor: pointer;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+        .scroll-top-btn:hover {
+            background-color: #2563eb;
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="page-header">
+            <div class="page-title">
+                <i class="fa-solid fa-file-contract"></i> รายงาน Change Request
+            </div>
+            <div style="display: flex; gap: 8px;">
+                <a href="{{ route('portal') }}" class="btn-back">
+                    <i class="fa-solid fa-house"></i> หน้าหลัก Portal
+                </a>
+                <a href="{{ route('change_request') }}" class="btn-back" style="background: #10b981; color: white; border-color: #10b981;">
+                    <i class="fa-solid fa-file-pen"></i> ฟอร์ม Change Request
+                </a>
+            </div>
+        </div>
+
+        <div class="filter-card">
+            <form method="GET" action="{{ route('change_request_report') }}" class="filter-form">
+                <div class="form-group">
+                    <label class="form-label" for="start_date">ตั้งแต่วันที่</label>
+                    <input type="date" id="start_date" name="start_date" class="form-control" value="{{ $start_date ?? '' }}">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="end_date">ถึงวันที่</label>
+                    <input type="date" id="end_date" name="end_date" class="form-control" value="{{ $end_date ?? '' }}">
+                </div>
+                
+                <button type="submit" class="btn-search">
+                    <i class="fa-solid fa-magnifying-glass"></i> ค้นหา
+                </button>
+                
+                @if(!empty($start_date) || !empty($end_date))
+                <a href="{{ route('change_request_report') }}" class="btn-clear">
+                    <i class="fa-solid fa-rotate-left"></i> ล้างตัวกรอง
+                </a>
+                
+                <a href="/api/export_change_request_csv/?start_date={{ $start_date ?? '' }}&end_date={{ $end_date ?? '' }}" class="btn-export">
+                    <i class="fa-solid fa-file-csv"></i> Export CSV
+                </a>
+                @endif
+            </form>
+        </div>
+
+        <div class="table-card">
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>No.</th>
+                            <th>Request No.</th>
+                            <th>Project Name</th>
+                            <th>Project Owner</th>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                            <th>Create Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($requests as $item)
+                        <tr>
+                            <td><span class="id-badge">{{ $loop->iteration }}</span></td>
+                            <td><span class="change-badge">{{ $item->request_no }}</span></td>
+                            <td class="subject-cell">{{ $item->project_name }}</td>
+                            <td>{{ $item->project_owner }}</td>
+                            <td class="date-cell">{{ $item->start_date?->format('Y-m-d') }}</td>
+                            <td class="date-cell">{{ $item->end_date?->format('Y-m-d') }}</td>
+                            <td class="date-cell">{{ $item->created_at?->format('Y-m-d H:i') }}</td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="8">
+                                <div class="empty-state">
+                                    @if($searched)
+                                    <i class="fa-solid fa-folder-open"></i>
+                                    <h3>ไม่พบข้อมูล</h3>
+                                    <p>ไม่พบรายการประกาศที่ตรงกับเงื่อนไขที่คุณค้นหา</p>
+                                    @else
+                                    <i class="fa-solid fa-magnifying-glass-chart"></i>
+                                    <h3>กรุณาค้นหาข้อมูล</h3>
+                                    <p>โปรดเลือกช่วงเวลา "ตั้งแต่วันที่" ถึง "ถึงวันที่" และกดปุ่มค้นหาเพื่อดูรายงานครับ</p>
+                                    @endif
+                                </div>
+                            </td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Basic Source Code Protection -->
+    <script>
+        // Disable Right Click
+        document.addEventListener('contextmenu', event => event.preventDefault());
+
+        // Disable Ctrl+U / Cmd+U (View Source)
+        document.addEventListener('keydown', function(e) {
+            if ((e.ctrlKey || e.metaKey) && (e.key === 'u' || e.key === 'U')) {
+                e.preventDefault();
+                return false;
+            }
+        });
+    </script>
+
+    <!-- Scroll to Top Button -->
+    <button id="scrollTopBtn" class="scroll-top-btn" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" title="Scroll to Top">
+        <i class="fa-solid fa-arrow-up"></i>
+    </button>
+
+    <script>
+        // Scroll to Top functionality
+        window.addEventListener('scroll', function() {
+            const btn = document.getElementById('scrollTopBtn');
+            if (window.scrollY > 300) {
+                btn.style.display = 'flex';
+            } else {
+                btn.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

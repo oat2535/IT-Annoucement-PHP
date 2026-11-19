@@ -24,6 +24,22 @@ RUN apk add --no-cache \
         bcmath \
         opcache
 
+# Production PHP & OPcache tuning
+RUN { \
+    echo 'opcache.memory_consumption=128'; \
+    echo 'opcache.interned_strings_buffer=8'; \
+    echo 'opcache.max_accelerated_files=10000'; \
+    echo 'opcache.revalidate_freq=2'; \
+    echo 'opcache.fast_shutdown=1'; \
+    echo 'opcache.enable_cli=1'; \
+} > /usr/local/etc/php/conf.d/opcache-recommended.ini \
+    && { \
+    echo 'memory_limit=256M'; \
+    echo 'upload_max_filesize=50M'; \
+    echo 'post_max_size=50M'; \
+    echo 'date.timezone=Asia/Bangkok'; \
+} > /usr/local/etc/php/conf.d/laravel-custom.ini
+
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
@@ -38,7 +54,8 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction
 
 # Prepare permissions
 RUN chown -R www-data:www-data /app/storage /app/bootstrap/cache \
-    && chmod -R 775 /app/storage /app/bootstrap/cache
+    && chmod -R 775 /app/storage /app/bootstrap/cache \
+    && chmod +x /app/docker-entrypoint.sh
 
 # Expose port
 EXPOSE 5897
@@ -47,5 +64,6 @@ EXPOSE 5897
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
   CMD curl -f http://127.0.0.1:5897/up || exit 1
 
-# Start built-in server or octane/roadrunner
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
+
 CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=5897"]

@@ -14,11 +14,12 @@ php artisan serve --port=5897
 ```
 เข้าใช้งานผ่านเบราว์เซอร์: [http://localhost:5897](http://localhost:5897)
 
-### วิธีที่ 2: รันผ่าน Docker
+### วิธีที่ 2: รันผ่าน Docker & Portainer
 ```bash
-docker build -t it-announcement-tlp:latest .
-docker run -d --name it-announcement-app -p 5897:5897 it-announcement-tlp:latest
+docker compose up -d --build
 ```
+สำหรับคู่มือการ Deploy ผ่าน **Portainer Stack** จาก GitHub Repository โดยตรง:  
+👉 **[PORTAINER_DEPLOYMENT.md](file:///c:/IT%20Annoucement%20-%20PHP/PORTAINER_DEPLOYMENT.md)**
 
 ---
 

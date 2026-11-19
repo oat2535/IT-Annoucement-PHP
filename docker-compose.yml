@@ -10,10 +10,12 @@ services:
     ports:
       - "${PORT:-5897}:5897"
     volumes:
-      - ./storage/app:/app/storage/app
-      - ./.env:/app/.env
+      - app_storage_public:/app/storage/app/public
+      - app_logs:/app/storage/logs
     environment:
+      - APP_NAME=IT_Announcement
       - APP_ENV=${APP_ENV:-production}
+      - APP_KEY=${APP_KEY:-base64:7K5gB0qJ72n0O22R1j0PjS6cR7mi04s3D76u4234xY0=}
       - APP_DEBUG=${APP_DEBUG:-false}
       - APP_URL=${APP_URL:-https://annouce.thonglorpet.com}
       - DB_CONNECTION=pgsql
@@ -23,6 +25,9 @@ services:
       - DB_USERNAME=${DB_USERNAME:-eservices}
       - DB_PASSWORD=${DB_PASSWORD:-Tlp@2023}
       - DB_SCHEMA=${DB_SCHEMA:-intra_tl}
+      - DB_AUTO_MIGRATE=${DB_AUTO_MIGRATE:-false}
+      - LOG_CHANNEL=daily
+      - LOG_LEVEL=${LOG_LEVEL:-warning}
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://127.0.0.1:5897/up || exit 1"]
       interval: 30s
@@ -36,6 +41,12 @@ services:
         max-file: "5"
     networks:
       - app_network
+
+volumes:
+  app_storage_public:
+    name: it_announcement_storage_public
+  app_logs:
+    name: it_announcement_logs
 
 networks:
   app_network:

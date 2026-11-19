@@ -8,7 +8,7 @@ mkdir -p /app/storage/framework/sessions \
          /app/storage/logs \
          /app/storage/app/public/change_requests
 
-# Set correct permissions for www-data
+# Set correct permissions for www-data and current user
 chown -R www-data:www-data /app/storage /app/bootstrap/cache || true
 chmod -R 775 /app/storage /app/bootstrap/cache || true
 
@@ -18,14 +18,19 @@ if [ ! -L /app/public/storage ]; then
     php artisan storage:link --force || true
 fi
 
+# Clear stale build-time or previous container caches to respect runtime ENV
+php artisan config:clear || true
+php artisan route:clear || true
+php artisan view:clear || true
+
 # Run migration if requested
 if [ "${DB_AUTO_MIGRATE:-false}" = "true" ]; then
     echo "Running database migrations..."
     php artisan migrate --force || true
 fi
 
-# Optimize cache for production
-if [ "${APP_ENV:-production}" = "production" ] && [ -n "$APP_KEY" ]; then
+# Optimize cache if explicitly enabled
+if [ "${APP_OPTIMIZE:-false}" = "true" ] && [ -n "$APP_KEY" ]; then
     echo "Optimizing configuration, routes, and views cache..."
     php artisan config:cache || true
     php artisan route:cache || true

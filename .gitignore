@@ -30,13 +30,14 @@
 !/storage/framework/views/.gitignore
 !/storage/logs/.gitignore
 /vendor
-__pycache__/
-*.py[cod]
-*$py.class
 _legacy_django/
 *.sqlite3
 *.sqlite
+db.sqlite3
 database/*.sqlite
+__pycache__/
+*.py[cod]
+*$py.class
 _ide_helper.php
 Homestead.json
 Homestead.yaml

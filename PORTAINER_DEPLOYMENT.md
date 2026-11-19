@@ -114,7 +114,7 @@
 
 ---
 
-## 🔍 การตรวจสอบความเรียบร้อย (Verification)
+## 🔍 การตรวจสอบความเรียบร้อย (Verification & Diagnostics)
 
 1. **ตรวจสอบสถานะ Container**:
    - Container Name: `it_announcement_laravel_web`
@@ -124,7 +124,10 @@
    curl -I http://<SERVER_IP>:5897/up
    # ต้องได้สถานะ: HTTP/1.1 200 OK
    ```
-3. **เปิดใช้งานหน้าเว็บ**:
+3. **ระบบวิเคราะห์สถานะเชิงลึก (Self-Diagnostics Endpoint)**:
+   - เปิดบราวเซอร์ไปที่: `http://<SERVER_IP>:5897/diagnose`
+   - ระบบจะส่งกลับ JSON รายงานผลการเชื่อมต่อฐานข้อมูล PostgreSQL, Permission ของไดเรกทอรี Storage/Session/Cache และจำนวนข้อมูลในตารางทันที หากมีข้อผิดพลาดจะระบุสาเหตุอย่างละเอียด
+4. **เปิดใช้งานหน้าเว็บ**:
    - หน้าหลัก Portal: `http://<SERVER_IP>:5897/`
    - ฟอร์ม Change Request: `http://<SERVER_IP>:5897/change-request`
    - หน้าประกาศ Announcement: `http://<SERVER_IP>:5897/announcement`

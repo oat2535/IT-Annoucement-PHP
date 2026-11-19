@@ -57,4 +57,18 @@ class WebPortalTest extends TestCase
         // Ensure attachments is NOT in reqData to prevent HTMLInputElement InvalidStateError
         $response->assertDontSee('"attachments":[');
     }
+
+    public function test_diagnose_endpoint_returns_json(): void
+    {
+        $response = $this->get('/diagnose');
+
+        $response->assertStatus(200);
+        $response->assertJsonStructure([
+            'php_version',
+            'extensions',
+            'storage',
+            'config',
+            'database',
+        ]);
+    }
 }

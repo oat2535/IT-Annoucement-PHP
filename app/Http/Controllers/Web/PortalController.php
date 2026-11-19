@@ -37,10 +37,24 @@ class PortalController extends Controller
             return redirect()->route('announcement', ['change_no' => $changeNo]);
         }
 
-        $totalAnnouncements = Announcement::count();
-        $totalChangeRequests = ChangeRequest::count();
-        $latestAnnouncement = Announcement::orderBy('id', 'desc')->first();
-        $latestChangeRequest = ChangeRequest::orderBy('id', 'desc')->first();
+        try {
+            $totalAnnouncements = Announcement::count();
+            $totalChangeRequests = ChangeRequest::count();
+            $latestAnnouncement = Announcement::orderBy('id', 'desc')->first();
+            $latestChangeRequest = ChangeRequest::orderBy('id', 'desc')->first();
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error("Database query failed in PortalController: " . $e->getMessage(), [
+                'exception' => $e,
+            ]);
+
+            if (config('app.debug')) {
+                throw $e;
+            }
+
+            return response()->view('errors.db_error', [
+                'errorMessage' => $e->getMessage(),
+            ], 500);
+        }
 
         return view('portal', [
             'total_announcements' => $totalAnnouncements,

@@ -71,6 +71,10 @@ class AnnouncementController extends Controller
                 $data['change_no'] = Announcement::generateNextChangeNo();
             }
 
+            if (empty($data['create_date'])) {
+                $data['create_date'] = now();
+            }
+
             return Announcement::create($data);
         });
 

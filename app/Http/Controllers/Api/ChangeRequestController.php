@@ -84,6 +84,21 @@ class ChangeRequestController extends Controller
             $data = $request->validated();
             unset($data['attachments']);
 
+            // Normalize lookup fields from form
+            $lookupMap = [
+                'change_type' => 'change_type_id',
+                'change_category' => 'change_category_id',
+                'system_affected' => 'system_affected_id',
+                'branch_location' => 'branch_location_id',
+                'risk_level' => 'risk_level_id',
+            ];
+            foreach ($lookupMap as $shortKey => $dbKey) {
+                if (empty($data[$dbKey]) && !empty($data[$shortKey])) {
+                    $data[$dbKey] = $data[$shortKey];
+                }
+                unset($data[$shortKey]);
+            }
+
             if (empty($data['request_no'])) {
                 $data['request_no'] = ChangeRequest::generateNextRequestNo();
             }

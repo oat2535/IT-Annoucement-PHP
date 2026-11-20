@@ -14,6 +14,7 @@ class ChangeRequestResource extends JsonResource
             'request_no' => $this->request_no,
 
             // Categorization
+            'change_type_id' => $this->change_type_id,
             'change_type' => $this->whenLoaded('changeType', fn() => [
                 'id' => $this->changeType->id,
                 'name' => $this->changeType->name,
@@ -21,6 +22,7 @@ class ChangeRequestResource extends JsonResource
                 'id' => $this->change_type_id,
                 'name' => $this->changeType?->name,
             ]),
+            'change_category_id' => $this->change_category_id,
             'change_category' => $this->whenLoaded('changeCategory', fn() => [
                 'id' => $this->changeCategory->id,
                 'name' => $this->changeCategory->name,
@@ -28,6 +30,7 @@ class ChangeRequestResource extends JsonResource
                 'id' => $this->change_category_id,
                 'name' => $this->changeCategory?->name,
             ]),
+            'system_affected_id' => $this->system_affected_id,
             'system_affected' => $this->whenLoaded('systemAffected', fn() => [
                 'id' => $this->systemAffected->id,
                 'name' => $this->systemAffected->name,
@@ -35,6 +38,7 @@ class ChangeRequestResource extends JsonResource
                 'id' => $this->system_affected_id,
                 'name' => $this->systemAffected?->name,
             ]),
+            'branch_location_id' => $this->branch_location_id,
             'branch_location' => $this->whenLoaded('branchLocation', fn() => [
                 'id' => $this->branchLocation->id,
                 'name' => $this->branchLocation->name,
@@ -42,6 +46,7 @@ class ChangeRequestResource extends JsonResource
                 'id' => $this->branch_location_id,
                 'name' => $this->branchLocation?->name,
             ]),
+            'risk_level_id' => $this->risk_level_id,
             'risk_level' => $this->whenLoaded('riskLevel', fn() => [
                 'id' => $this->riskLevel->id,
                 'name' => $this->riskLevel->name,

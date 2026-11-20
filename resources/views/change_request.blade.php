@@ -1618,6 +1618,15 @@
                 }
             });
 
+            // Ensure lookup fields are appended with both standard names and _id names
+            const lookupFields = ['change_type', 'change_category', 'system_affected', 'branch_location', 'risk_level'];
+            lookupFields.forEach(field => {
+                const val = formData.get(field);
+                if (val) {
+                    formData.set(field + '_id', val);
+                }
+            });
+
             // Explicitly attach all File objects from selectedFiles array to guarantee files are reliably sent
             formData.delete('attachments');
             formData.delete('attachments[]');
@@ -2122,10 +2131,10 @@
                     if (selVal && typeof selVal === 'object' && 'id' in selVal) {
                         selVal = selVal.id;
                     }
-                    if (selVal !== undefined && selVal !== null) {
-                        sel.value = selVal;
+                    if (selVal !== undefined && selVal !== null && selVal !== '') {
+                        sel.value = String(selVal);
                         if (window.jQuery) {
-                            $(sel).trigger('change');
+                            $(sel).val(String(selVal)).trigger('change');
                         }
                     }
                 });

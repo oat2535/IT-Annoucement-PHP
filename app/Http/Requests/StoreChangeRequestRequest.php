@@ -11,6 +11,28 @@ class StoreChangeRequestRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        $merge = [];
+        $mappings = [
+            'change_type' => 'change_type_id',
+            'change_category' => 'change_category_id',
+            'system_affected' => 'system_affected_id',
+            'branch_location' => 'branch_location_id',
+            'risk_level' => 'risk_level_id',
+        ];
+
+        foreach ($mappings as $short => $fk) {
+            if ($this->filled($short) && !$this->filled($fk)) {
+                $merge[$fk] = $this->input($short);
+            }
+        }
+
+        if (!empty($merge)) {
+            $this->merge($merge);
+        }
+    }
+
     public function rules(): array
     {
         return [
@@ -23,12 +45,17 @@ class StoreChangeRequestRequest extends FormRequest
             'start_date' => ['nullable', 'date'],
             'end_date' => ['nullable', 'date'],
 
-            // Lookup IDs
+            // Lookup IDs (accepts both change_type and change_type_id)
             'change_type_id' => ['nullable', 'exists:change_request_types,id'],
+            'change_type' => ['nullable', 'exists:change_request_types,id'],
             'change_category_id' => ['nullable', 'exists:change_request_categories,id'],
+            'change_category' => ['nullable', 'exists:change_request_categories,id'],
             'system_affected_id' => ['nullable', 'exists:change_request_system_affecteds,id'],
+            'system_affected' => ['nullable', 'exists:change_request_system_affecteds,id'],
             'branch_location_id' => ['nullable', 'exists:change_request_branch_locations,id'],
+            'branch_location' => ['nullable', 'exists:change_request_branch_locations,id'],
             'risk_level_id' => ['nullable', 'exists:change_request_risk_levels,id'],
+            'risk_level' => ['nullable', 'exists:change_request_risk_levels,id'],
 
             // Purpose & Specs
             'usage_purpose' => ['nullable', 'string', 'max:50'],

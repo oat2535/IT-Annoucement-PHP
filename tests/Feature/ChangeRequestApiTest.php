@@ -93,6 +93,47 @@ class ChangeRequestApiTest extends TestCase
         $this->assertStringStartsWith('CHG-', $requestNo);
     }
 
+    public function test_can_create_change_request_with_form_field_names_without_id_suffix(): void
+    {
+        $type = ChangeType::first();
+        $category = ChangeCategory::first();
+        $system = SystemAffected::first();
+        $branch = BranchLocation::first();
+        $risk = RiskLevel::first();
+
+        $payload = [
+            'project_name' => 'ทดสอบบันทึกหมวดหมู่ผ่านฟอร์มเว็บ',
+            'project_owner' => 'ทีมพัฒนาระบบ',
+            'objectives' => 'ทดสอบการส่ง field ชื่อ change_type, change_category โดยไม่มี _id',
+            'main_responsible_person' => 'เจ้าหน้าที่ไอที',
+            // Form sends field names without _id suffix
+            'change_type' => $type?->id,
+            'change_category' => $category?->id,
+            'system_affected' => $system?->id,
+            'branch_location' => $branch?->id,
+            'risk_level' => $risk?->id,
+        ];
+
+        $response = $this->post('/api/save_change_request/', $payload);
+
+        $response->assertStatus(201)
+            ->assertJson([
+                'status' => 'success',
+                'success' => true,
+            ]);
+
+        $createdId = $response->json('id');
+        $this->assertNotNull($createdId);
+
+        $cr = ChangeRequest::find($createdId);
+        $this->assertNotNull($cr);
+        $this->assertEquals($type?->id, $cr->change_type_id, 'change_type_id must be saved');
+        $this->assertEquals($category?->id, $cr->change_category_id, 'change_category_id must be saved');
+        $this->assertEquals($system?->id, $cr->system_affected_id, 'system_affected_id must be saved');
+        $this->assertEquals($branch?->id, $cr->branch_location_id, 'branch_location_id must be saved');
+        $this->assertEquals($risk?->id, $cr->risk_level_id, 'risk_level_id must be saved');
+    }
+
     public function test_can_load_change_request_by_request_no_via_legacy_endpoint(): void
     {
         $existing = ChangeRequest::first();

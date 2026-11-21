@@ -354,6 +354,11 @@
         <div class="filter-card">
             <form method="GET" action="{{ route('report') }}" class="filter-form">
                 <div class="form-group">
+                    <label class="form-label" for="search">คำค้นหา</label>
+                    <input type="text" id="search" name="search" class="form-control" placeholder="Change No., หัวข้อ, ผู้ดำเนินการ..." value="{{ $search ?? '' }}" style="min-width: 250px;">
+                </div>
+
+                <div class="form-group">
                     <label class="form-label" for="start_date">ตั้งแต่วันที่</label>
                     <input type="date" id="start_date" name="start_date" class="form-control" value="{{ $start_date ?? '' }}">
                 </div>
@@ -367,12 +372,19 @@
                     <i class="fa-solid fa-magnifying-glass"></i> ค้นหา
                 </button>
                 
-                @if(!empty($start_date) || !empty($end_date))
+                @if($searched)
                 <a href="{{ route('report') }}" class="btn-clear">
                     <i class="fa-solid fa-rotate-left"></i> ล้างตัวกรอง
                 </a>
                 
-                <a href="/api/export_csv/?start_date={{ $start_date ?? '' }}&end_date={{ $end_date ?? '' }}" class="btn-export">
+                @php
+                    $exportParams = array_filter([
+                        'search' => $search ?? '',
+                        'start_date' => $start_date ?? '',
+                        'end_date' => $end_date ?? '',
+                    ]);
+                @endphp
+                <a href="/api/export_csv/?{{ http_build_query($exportParams) }}" class="btn-export">
                     <i class="fa-solid fa-file-csv"></i> Export CSV
                 </a>
                 @endif
@@ -380,6 +392,11 @@
         </div>
 
         <div class="table-card">
+            @if($searched && $announcements->isNotEmpty())
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 20px; background-color: #f8fafc; border-bottom: 1px solid var(--border-color); font-size: 14px; color: var(--text-secondary);">
+                <span>ผลการค้นหา: <strong style="color: var(--primary-color);">{{ $announcements->count() }}</strong> รายการ</span>
+            </div>
+            @endif
             <div class="table-responsive">
                 <table>
                     <thead>
@@ -398,7 +415,11 @@
                         @forelse($announcements as $item)
                         <tr>
                             <td><span class="id-badge">{{ $loop->iteration }}</span></td>
-                            <td><span class="change-badge">{{ $item->change_no }}</span></td>
+                            <td>
+                                <a href="{{ route('announcement', ['change_no' => $item->change_no]) }}" title="เปิดดูประกาศ {{ $item->change_no }}" style="text-decoration: none;">
+                                    <span class="change-badge" style="cursor: pointer;">{{ $item->change_no }}</span>
+                                </a>
+                            </td>
                             <td class="subject-cell">{{ $item->subject }}</td>
                             <td class="date-cell">{{ $item->operate_date }}</td>
                             <td class="date-cell">{{ $item->operate_time }}</td>
@@ -417,7 +438,7 @@
                                     @else
                                     <i class="fa-solid fa-magnifying-glass-chart"></i>
                                     <h3>กรุณาค้นหาข้อมูล</h3>
-                                    <p>โปรดเลือกช่วงเวลา "ตั้งแต่วันที่" ถึง "ถึงวันที่" และกดปุ่มค้นหาเพื่อดูรายงานครับ</p>
+                                    <p>โปรดระบุเงื่อนไขตัวกรอง (เช่น คำค้นหา หรือช่วงวันที่) แล้วกดปุ่มค้นหาเพื่อดูรายงานครับ</p>
                                     @endif
                                 </div>
                             </td>

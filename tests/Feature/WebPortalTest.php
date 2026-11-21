@@ -29,6 +29,33 @@ class WebPortalTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertSee('IT Announcement Report');
+        $response->assertSee('กรุณาค้นหาข้อมูล');
+        $response->assertDontSee('Export CSV');
+        $response->assertDontSee('ล้างตัวกรอง');
+    }
+
+    public function test_report_page_displays_results_when_search_filter_applied(): void
+    {
+        $announcement = \App\Models\Announcement::first();
+        $this->assertNotNull($announcement);
+
+        $response = $this->get('/report?search=' . urlencode($announcement->change_no));
+
+        $response->assertStatus(200);
+        $response->assertSee($announcement->change_no);
+        $response->assertSee('Export CSV');
+        $response->assertSee('ล้างตัวกรอง');
+        $response->assertSee('ผลการค้นหา:');
+    }
+
+    public function test_report_page_displays_results_when_date_filter_applied(): void
+    {
+        $response = $this->get('/report?start_date=2020-01-01&end_date=2030-12-31');
+
+        $response->assertStatus(200);
+        $response->assertSee('Export CSV');
+        $response->assertSee('ล้างตัวกรอง');
+        $response->assertSee('ผลการค้นหา:');
     }
 
     public function test_change_request_page_renders_successfully(): void
@@ -45,6 +72,33 @@ class WebPortalTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertSee('Change Request Report');
+        $response->assertSee('กรุณาค้นหาข้อมูล');
+        $response->assertDontSee('Export CSV');
+        $response->assertDontSee('ล้างตัวกรอง');
+    }
+
+    public function test_change_request_report_page_displays_results_when_search_filter_applied(): void
+    {
+        $request = \App\Models\ChangeRequest::first();
+        $this->assertNotNull($request);
+
+        $response = $this->get('/change-request-report?search=' . urlencode($request->request_no));
+
+        $response->assertStatus(200);
+        $response->assertSee($request->request_no);
+        $response->assertSee('Export CSV');
+        $response->assertSee('ล้างตัวกรอง');
+        $response->assertSee('ผลการค้นหา:');
+    }
+
+    public function test_change_request_report_page_displays_results_when_date_filter_applied(): void
+    {
+        $response = $this->get('/change-request-report?start_date=2020-01-01&end_date=2030-12-31');
+
+        $response->assertStatus(200);
+        $response->assertSee('Export CSV');
+        $response->assertSee('ล้างตัวกรอง');
+        $response->assertSee('ผลการค้นหา:');
     }
 
     public function test_change_request_page_renders_with_existing_request_with_attachments(): void

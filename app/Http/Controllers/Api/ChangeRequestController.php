@@ -211,7 +211,8 @@ class ChangeRequestController extends Controller
             $query->where(function ($q) use ($search) {
                 $q->where('request_no', 'ilike', "%{$search}%")
                   ->orWhere('project_name', 'ilike', "%{$search}%")
-                  ->orWhere('project_owner', 'ilike', "%{$search}%");
+                  ->orWhere('project_owner', 'ilike', "%{$search}%")
+                  ->orWhere('main_responsible_person', 'ilike', "%{$search}%");
             });
         }
 

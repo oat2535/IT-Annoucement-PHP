@@ -12,6 +12,7 @@ use App\Models\RiskLevel;
 use App\Models\SystemAffected;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class PortalController extends Controller
 {
@@ -82,16 +83,33 @@ class PortalController extends Controller
     {
         $startDate = $request->query('start_date');
         $endDate = $request->query('end_date');
+        $search = trim((string)$request->query('search', ''));
 
-        $query = Announcement::query();
+        $hasFilter = !empty($startDate) || !empty($endDate) || $search !== '';
 
-        if ($startDate && $endDate) {
-            $query->whereDate('create_date', '>=', $startDate)
-                  ->whereDate('create_date', '<=', $endDate);
+        if ($hasFilter) {
+            $like = DB::connection()->getDriverName() === 'pgsql' ? 'ilike' : 'like';
+            $query = Announcement::query();
+
+            if (!empty($startDate)) {
+                $query->whereDate('create_date', '>=', $startDate);
+            }
+            if (!empty($endDate)) {
+                $query->whereDate('create_date', '<=', $endDate);
+            }
+            if ($search !== '') {
+                $query->where(function ($q) use ($search, $like) {
+                    $q->where('change_no', $like, "%{$search}%")
+                      ->orWhere('subject', $like, "%{$search}%")
+                      ->orWhere('user_operate', $like, "%{$search}%")
+                      ->orWhere('remark', $like, "%{$search}%");
+                });
+            }
+
             $announcements = $query->orderBy('id', 'desc')->get();
             $searched = true;
         } else {
-            $announcements = Announcement::orderBy('id', 'desc')->take(100)->get();
+            $announcements = collect();
             $searched = false;
         }
 
@@ -99,6 +117,7 @@ class PortalController extends Controller
             'announcements' => $announcements,
             'start_date' => $startDate,
             'end_date' => $endDate,
+            'search' => $search,
             'searched' => $searched,
         ]);
     }
@@ -168,16 +187,33 @@ class PortalController extends Controller
     {
         $startDate = $request->query('start_date');
         $endDate = $request->query('end_date');
+        $search = trim((string)$request->query('search', ''));
 
-        $query = ChangeRequest::query();
+        $hasFilter = !empty($startDate) || !empty($endDate) || $search !== '';
 
-        if ($startDate && $endDate) {
-            $query->whereDate('created_at', '>=', $startDate)
-                  ->whereDate('created_at', '<=', $endDate);
+        if ($hasFilter) {
+            $like = DB::connection()->getDriverName() === 'pgsql' ? 'ilike' : 'like';
+            $query = ChangeRequest::query();
+
+            if (!empty($startDate)) {
+                $query->whereDate('created_at', '>=', $startDate);
+            }
+            if (!empty($endDate)) {
+                $query->whereDate('created_at', '<=', $endDate);
+            }
+            if ($search !== '') {
+                $query->where(function ($q) use ($search, $like) {
+                    $q->where('request_no', $like, "%{$search}%")
+                      ->orWhere('project_name', $like, "%{$search}%")
+                      ->orWhere('project_owner', $like, "%{$search}%")
+                      ->orWhere('main_responsible_person', $like, "%{$search}%");
+                });
+            }
+
             $requests = $query->orderBy('id', 'desc')->get();
             $searched = true;
         } else {
-            $requests = ChangeRequest::orderBy('id', 'desc')->take(100)->get();
+            $requests = collect();
             $searched = false;
         }
 
@@ -185,6 +221,7 @@ class PortalController extends Controller
             'requests' => $requests,
             'start_date' => $startDate,
             'end_date' => $endDate,
+            'search' => $search,
             'searched' => $searched,
         ]);
     }

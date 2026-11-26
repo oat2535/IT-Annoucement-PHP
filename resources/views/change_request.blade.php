@@ -1260,6 +1260,7 @@
 
         function previewDocument(rawUrl, type, filename, fileId = null) {
             const url = getSafeFileUrl(rawUrl);
+            const safeUrl = encodeURI(decodeURI(url));
             document.getElementById('docPreviewTitle').innerText = 'พรีวิว: ' + filename;
             const contentDiv = document.getElementById('docPreviewContent');
             
@@ -1285,47 +1286,29 @@
                         headerDiv.appendChild(extBtn);
                     }
                 }
-                extBtn.href = url;
+                extBtn.href = safeUrl;
                 extBtn.download = filename;
-            }
-
-            // For saved Word files, use Backend PDF generation for perfect layout
-            if (type === 'word' && fileId) {
-                document.getElementById('docPreviewModal').style.display = 'flex';
-                contentDiv.innerHTML = '<div style="display:flex; justify-content:center; align-items:center; height:100%; flex-direction:column;"><i class="fa-solid fa-spinner fa-spin fa-3x" style="color:#64748b; margin-bottom:15px;"></i><h3 style="color:#64748b; font-family:Kanit;">กำลังเตรียมเอกสาร PDF สำหรับไฟล์ Word...</h3><p style="color:#94a3b8;">อาจใช้เวลา 10-15 วินาที สำหรับการเปิดครั้งแรก</p></div>';
-                
-                fetch(`/api/preview_document/?id=${fileId}`)
-                    .then(res => {
-                        if (!res.ok) throw new Error('Network error');
-                        return res.blob();
-                    })
-                    .then(blob => {
-                        const pdfUrl = URL.createObjectURL(blob);
-                        contentDiv.innerHTML = `<iframe src="${pdfUrl}#toolbar=0" width="100%" height="100%" style="border:none; border-radius:8px;"></iframe>`;
-                    })
-                    .catch(err => {
-                        contentDiv.innerHTML = '<div style="color:red; text-align:center; padding:40px;"><h3>เกิดข้อผิดพลาดในการโหลดเอกสารจากเซิร์ฟเวอร์</h3></div>';
-                    });
-                return;
             }
 
             if (type === 'image') {
                 document.getElementById('docPreviewModal').style.display = 'flex';
-                contentDiv.innerHTML = `<img src="${encodeURI(url)}" style="max-width:100%; max-height:100%; border-radius:8px; object-fit:contain; display:block; margin:auto;" />`;
+                contentDiv.innerHTML = `<img src="${safeUrl}" style="max-width:100%; max-height:100%; border-radius:8px; object-fit:contain; display:block; margin:auto;" />`;
                 return;
             }
 
             if (type === 'pdf') {
                 document.getElementById('docPreviewModal').style.display = 'flex';
-                const safeUrl = encodeURI(url);
                 contentDiv.innerHTML = `<iframe src="${safeUrl}#toolbar=1" width="100%" height="100%" style="border:none; border-radius:8px;"></iframe>`;
                 return;
             }
 
             Swal.fire({ title: 'กำลังโหลดเอกสาร...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
             
-            fetch(url)
-                .then(res => res.blob())
+            fetch(safeUrl)
+                .then(res => {
+                    if (!res.ok) throw new Error('ไม่สามารถโหลดไฟล์จากเซิร์ฟเวอร์ได้ (HTTP ' + res.status + ')');
+                    return res.blob();
+                })
                 .then(blob => {
                     contentDiv.innerHTML = '';
                     document.getElementById('docPreviewModal').style.display = 'flex';
@@ -1333,7 +1316,7 @@
                     if (type === 'word') {
                         if (filename.toLowerCase().endsWith('.doc')) {
                             Swal.close();
-                            contentDiv.innerHTML = '<div style="color:#ef4444; text-align:center; padding:40px; background:white; border-radius:8px;"><h3>ไม่สามารถพรีวิวไฟล์ .doc (เวอร์ชันเก่า) ได้</h3><p>ระบบรองรับการพรีวิวเฉพาะไฟล์ .docx เท่านั้น โปรดคลิกพรีวิวจากเบราว์เซอร์เพื่อดาวน์โหลดแทน</p></div>';
+                            contentDiv.innerHTML = '<div style="color:#ef4444; text-align:center; padding:40px; background:white; border-radius:8px;"><h3>ไม่สามารถพรีวิวไฟล์ .doc (เวอร์ชันเก่า) ได้</h3><p>ระบบรองรับการพรีวิวเฉพาะไฟล์ .docx เท่านั้น โปรดคลิกปุ่ม "ดาวน์โหลด / เปิดแยก" ด้านบนขวาเพื่อเปิดไฟล์ใน Microsoft Word แทนครับ</p></div>';
                             return;
                         }
                         
@@ -1353,7 +1336,11 @@
                             .then(() => { Swal.close(); })
                             .catch(err => {
                                 Swal.close();
-                                contentDiv.innerHTML = '<div style="color:red; text-align:center;">เกิดข้อผิดพลาดในการพรีวิวไฟล์ Word</div>';
+                                contentDiv.innerHTML = `<div style="color:#ef4444; text-align:center; padding:40px; background:white; border-radius:8px;">
+                                    <h3>เกิดข้อผิดพลาดในการแสดงผลไฟล์ Word</h3>
+                                    <p style="color:#64748b;">${err.message || 'โครงสร้างไฟล์ไม่รองรับการพรีวิวบนเบราว์เซอร์'}</p>
+                                    <p style="margin-top:15px;"><a href="${safeUrl}" download="${filename}" class="btn btn-success" style="padding:6px 16px;"><i class="fa-solid fa-download"></i> คลิกที่นี่เพื่อดาวน์โหลด / เปิดไฟล์โดยตรง</a></p>
+                                </div>`;
                             });
                     } else if (type === 'excel') {
                         if (filename.toLowerCase().endsWith('.xls')) {
@@ -1421,7 +1408,14 @@
                     }
                 })
                 .catch(err => {
-                    Swal.fire('ข้อผิดพลาด', 'ไม่สามารถโหลดไฟล์ได้', 'error');
+                    Swal.close();
+                    document.getElementById('docPreviewModal').style.display = 'flex';
+                    contentDiv.innerHTML = `<div style="color:#ef4444; text-align:center; padding:40px; background:white; border-radius:8px;">
+                        <i class="fa-solid fa-triangle-exclamation fa-3x" style="color:#ef4444; margin-bottom:15px;"></i>
+                        <h3 style="margin-bottom:10px;">เกิดข้อผิดพลาดในการโหลดเอกสารจากเซิร์ฟเวอร์</h3>
+                        <p style="color:#64748b;">${err.message || 'ไม่พบไฟล์หรือเซิร์ฟเวอร์ปฏิเสธการเชื่อมต่อ'}</p>
+                        <p style="margin-top:15px;"><a href="${safeUrl}" download="${filename}" class="btn btn-success" style="padding:6px 16px;"><i class="fa-solid fa-download"></i> คลิกที่นี่เพื่อดาวน์โหลด / เปิดไฟล์โดยตรง</a></p>
+                    </div>`;
                 });
         }
 

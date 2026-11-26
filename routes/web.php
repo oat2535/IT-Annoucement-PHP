@@ -64,11 +64,27 @@ Route::get('/diagnose', function () {
     return response()->json($results, $statusCode, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
 })->name('diagnose');
 
-// Media static serving fallback (supports legacy /media/{path} requests)
+// Static media & storage serving fallback (guarantees serving files even if symlink is missing or blocked)
 Route::get('/media/{path}', function (string $path) {
-    $filePath = storage_path('app/public/' . $path);
+    $decodedPath = urldecode($path);
+    $filePath = storage_path('app/public/' . $decodedPath);
+    if (!file_exists($filePath)) {
+        $filePath = storage_path('app/public/' . $path);
+    }
     if (file_exists($filePath)) {
         return response()->file($filePath);
     }
     abort(404);
 })->where('path', '.*')->name('media.file');
+
+Route::get('/storage/{path}', function (string $path) {
+    $decodedPath = urldecode($path);
+    $filePath = storage_path('app/public/' . $decodedPath);
+    if (!file_exists($filePath)) {
+        $filePath = storage_path('app/public/' . $path);
+    }
+    if (file_exists($filePath)) {
+        return response()->file($filePath);
+    }
+    abort(404);
+})->where('path', '.*')->name('storage.file');

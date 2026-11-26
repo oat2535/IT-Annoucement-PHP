@@ -1316,10 +1316,26 @@
                     if (type === 'word') {
                         if (filename.toLowerCase().endsWith('.doc')) {
                             Swal.close();
-                            contentDiv.innerHTML = '<div style="color:#ef4444; text-align:center; padding:40px; background:white; border-radius:8px;"><h3>ไม่สามารถพรีวิวไฟล์ .doc (เวอร์ชันเก่า) ได้</h3><p>ระบบรองรับการพรีวิวเฉพาะไฟล์ .docx เท่านั้น โปรดคลิกปุ่ม "ดาวน์โหลด / เปิดแยก" ด้านบนขวาเพื่อเปิดไฟล์ใน Microsoft Word แทนครับ</p></div>';
+                            contentDiv.innerHTML = `<div style="text-align:center; padding:50px 20px; background:white; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.05); max-width:600px; margin:40px auto; font-family:'Kanit', sans-serif;">
+                                <div style="font-size:48px; color:#f59e0b; margin-bottom:15px;"><i class="fa-solid fa-file-word"></i></div>
+                                <h3 style="color:#1e293b; margin-bottom:10px; font-weight:600;">ไม่สามารถแสดงตัวอย่างไฟล์ .doc (Word 97-2003) บนเว็บได้</h3>
+                                <p style="color:#64748b; margin-bottom:20px; font-size:14px;">ระบบรองรับการแสดงตัวอย่างเฉพาะไฟล์ตระกูล <strong>.docx</strong> เท่านั้น โปรดดาวน์โหลดเอกสารเพื่อเปิดด้วยโปรแกรม Microsoft Word โดยตรง</p>
+                                <a href="${safeUrl}" download="${filename}" class="btn btn-success" style="padding:10px 24px; border-radius:8px; font-weight:500; font-size:14px; text-decoration:none;"><i class="fa-solid fa-download"></i> ดาวน์โหลดเอกสาร</a>
+                            </div>`;
                             return;
                         }
                         
+                        if (typeof docx === 'undefined' || !docx.renderAsync) {
+                            Swal.close();
+                            contentDiv.innerHTML = `<div style="text-align:center; padding:50px 20px; background:white; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.05); max-width:600px; margin:40px auto; font-family:'Kanit', sans-serif;">
+                                <div style="font-size:48px; color:#2563eb; margin-bottom:15px;"><i class="fa-solid fa-file-word"></i></div>
+                                <h3 style="color:#1e293b; margin-bottom:10px; font-weight:600;">ไลบรารีแสดงผล Word กำลังดาวน์โหลด</h3>
+                                <p style="color:#64748b; margin-bottom:20px; font-size:14px;">กรุณารอสักครู่แล้วลองคลิกพรีวิวใหม่อีกครั้ง หรือคลิกปุ่มด้านล่างเพื่อดาวน์โหลดไฟล์ไปเปิดในเครื่อง</p>
+                                <a href="${safeUrl}" download="${filename}" class="btn btn-success" style="padding:10px 24px; border-radius:8px; font-weight:500; font-size:14px; text-decoration:none;"><i class="fa-solid fa-download"></i> ดาวน์โหลด / เปิดไฟล์โดยตรง</a>
+                            </div>`;
+                            return;
+                        }
+
                         const container = document.createElement('div');
                         container.style.width = '100%';
                         contentDiv.appendChild(container);
@@ -1329,17 +1345,28 @@
                             ignoreWidth: false,
                             ignoreHeight: false,
                             ignoreFonts: false,
-                            breakPages: true
+                            breakPages: true,
+                            experimental: true,
+                            trimXmlDeclaration: true,
+                            useBase64URL: true,
+                            renderHeaders: true,
+                            renderFooters: true
                         };
                         
                         docx.renderAsync(blob, container, null, docxOptions)
                             .then(() => { Swal.close(); })
                             .catch(err => {
+                                console.error('DOCX Preview Render Error:', err);
                                 Swal.close();
-                                contentDiv.innerHTML = `<div style="color:#ef4444; text-align:center; padding:40px; background:white; border-radius:8px;">
-                                    <h3>เกิดข้อผิดพลาดในการแสดงผลไฟล์ Word</h3>
-                                    <p style="color:#64748b;">${err.message || 'โครงสร้างไฟล์ไม่รองรับการพรีวิวบนเบราว์เซอร์'}</p>
-                                    <p style="margin-top:15px;"><a href="${safeUrl}" download="${filename}" class="btn btn-success" style="padding:6px 16px;"><i class="fa-solid fa-download"></i> คลิกที่นี่เพื่อดาวน์โหลด / เปิดไฟล์โดยตรง</a></p>
+                                contentDiv.innerHTML = `<div style="text-align:center; padding:50px 20px; background:white; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.05); max-width:620px; margin:40px auto; font-family:'Kanit', sans-serif;">
+                                    <div style="font-size:48px; color:#ef4444; margin-bottom:15px;"><i class="fa-solid fa-file-circle-exclamation"></i></div>
+                                    <h3 style="color:#1e293b; margin-bottom:10px; font-weight:600;">ไม่สามารถแสดงตัวอย่างไฟล์ Word บนเบราว์เซอร์ได้</h3>
+                                    <p style="color:#64748b; margin-bottom:12px; font-size:14px; line-height:1.6;">เอกสารนี้อาจมีองค์ประกอบโครงสร้างพิเศษ (เช่น วัตถุรูปวาดเวกเตอร์, แผนผัง, ตารางขั้นสูง หรือการติดตามการแก้ไข Track Changes) ที่ตัวแปลงเว็บไม่สามารถประมวลผลได้</p>
+                                    <p style="color:#94a3b8; font-size:12px; margin-bottom:25px; word-break:break-all;">(สาเหตุ: ${err.message || 'โครงสร้างเอกสารไม่รองรับการพรีวิว'})</p>
+                                    <div style="display:flex; justify-content:center; gap:12px; flex-wrap:wrap;">
+                                        <a href="${safeUrl}" download="${filename}" class="btn btn-success" style="padding:10px 22px; border-radius:8px; font-weight:500; font-size:14px; text-decoration:none;"><i class="fa-solid fa-download"></i> ดาวน์โหลดเพื่อเปิดใน Microsoft Word</a>
+                                        <a href="${safeUrl}" target="_blank" class="btn btn-outline-secondary" style="padding:10px 20px; border-radius:8px; font-weight:500; font-size:14px; text-decoration:none; border:1px solid #cbd5e1; color:#475569; background:#f8fafc;"><i class="fa-solid fa-arrow-up-right-from-square"></i> เปิดไฟล์ในแท็บใหม่</a>
+                                    </div>
                                 </div>`;
                             });
                     } else if (type === 'excel') {
@@ -2285,8 +2312,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 
     <!-- Document Preview Libraries (Deferred) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/docx-preview@0.3.2/dist/docx-preview.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" onerror="this.onerror=null;this.src='https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js';" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/docx-preview@0.4.1/dist/docx-preview.min.js" onerror="this.onerror=null;this.src='https://unpkg.com/docx-preview@0.4.1/dist/docx-preview.min.js';" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" defer></script>
     
     <!-- LuckySheet Dependencies for Excel Preview (Deferred) -->

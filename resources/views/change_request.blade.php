@@ -8,7 +8,7 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=Sarabun:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
     <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- SweetAlert2 -->
@@ -663,6 +663,55 @@
         @media print {
             .scroll-top-btn { display: none !important; }
         }
+
+        /* Document Preview Styling for DOCX & Thai Typography */
+        .docx-wrapper {
+            background: #475569 !important;
+            padding: 24px 10px !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            min-height: 100% !important;
+        }
+
+        .docx-wrapper > section.docx {
+            font-family: 'TH Sarabun New', 'TH Sarabun PSK', 'Sarabun', 'Angsana New', 'Cordia New', sans-serif !important;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3) !important;
+            border-radius: 4px !important;
+            overflow: hidden !important;
+            position: relative !important;
+            background: #ffffff !important;
+            margin-bottom: 25px !important;
+        }
+
+        .docx-wrapper > section.docx article,
+        .docx-wrapper > section.docx header,
+        .docx-wrapper > section.docx footer {
+            overflow: hidden !important;
+            position: relative !important;
+            max-width: 100% !important;
+        }
+
+        .docx-wrapper > section.docx * {
+            font-family: 'TH Sarabun New', 'TH Sarabun PSK', 'Sarabun', 'Angsana New', sans-serif !important;
+        }
+
+        .docx-wrapper > section.docx p {
+            line-height: 1.25 !important;
+        }
+
+        .docx-wrapper > section.docx table {
+            width: 100% !important;
+            border-collapse: collapse !important;
+            margin-bottom: 6px !important;
+        }
+
+        .docx-wrapper > section.docx table td,
+        .docx-wrapper > section.docx table th {
+            vertical-align: top !important;
+            padding: 3px 5px !important;
+            box-sizing: border-box !important;
+        }
     </style>
 </head>
 <body>
@@ -1101,13 +1150,25 @@
     </div>
 
     <!-- Document Preview Modal -->
-    <div id="docPreviewModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center;">
-        <div style="background:white; width:90%; height:90%; border-radius:12px; display:flex; flex-direction:column; overflow:hidden; position:relative; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);">
-            <div style="padding:15px 25px; background:var(--bg-dark); color:white; display:flex; justify-content:space-between; align-items:center;">
-                <h3 id="docPreviewTitle" style="margin:0; font-family:'Kanit', sans-serif;">พรีวิวเอกสาร</h3>
-                <button type="button" onclick="document.getElementById('docPreviewModal').style.display='none'" style="background:none; border:none; color:white; font-size:28px; cursor:pointer; line-height:1;">&times;</button>
+    <div id="docPreviewModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:9999; justify-content:center; align-items:center;">
+        <div style="background:white; width:92%; height:92%; max-width:1400px; border-radius:12px; display:flex; flex-direction:column; overflow:hidden; position:relative; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);">
+            <div style="padding:10px 20px; background:var(--bg-dark); color:white; display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; border-bottom:1px solid #334155;">
+                <div style="display:flex; align-items:center; gap:10px; max-width:45%; overflow:hidden;">
+                    <i id="docPreviewIcon" class="fa-solid fa-file" style="font-size:18px; color:#38bdf8;"></i>
+                    <h3 id="docPreviewTitle" style="margin:0; font-size:15px; font-weight:500; font-family:'Kanit', sans-serif; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">พรีวิวเอกสาร</h3>
+                </div>
+                <div id="docPreviewHeaderActions" style="display:flex; align-items:center; gap:8px; margin-left:auto;">
+                    <!-- Zoom & Action buttons will be injected here -->
+                </div>
+                <button type="button" onclick="closeDocPreviewModal()" style="background:none; border:none; color:#cbd5e1; font-size:26px; cursor:pointer; line-height:1; padding:0 4px;" title="ปิดหน้าต่าง">&times;</button>
             </div>
-            <div id="docPreviewContent" style="flex:1; padding:20px; overflow:auto; background:#f1f5f9;">
+            <div id="docPreviewNotice" style="display:none; padding:8px 20px; background:#eff6ff; color:#1e40af; font-size:13px; border-bottom:1px solid #bfdbfe; font-family:'Kanit', sans-serif; display:flex; align-items:center; justify-content:space-between;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <i class="fa-solid fa-circle-info" style="color:#3b82f6;"></i>
+                    <span>การพรีวิวไฟล์ Word (.docx) บนเว็บเป็นการแปลงเค้าโครงเบื้องต้น หากเอกสารมีตารางขั้นสูง รูปวาด หรือจัดหน้าเฉพาะ แนะนำให้กดปุ่ม <strong>"เปิดใน Word"</strong> หรือ <strong>"สลับดูไฟล์ PDF"</strong> เพื่อดูการจัดหน้าตรงต้นฉบับ 100% ครับ</span>
+                </div>
+            </div>
+            <div id="docPreviewContent" style="flex:1; padding:15px; overflow:auto; background:#475569;">
                 <!-- Content goes here -->
             </div>
         </div>
@@ -1258,46 +1319,143 @@
             return url;
         }
 
+        let currentDocxZoom = 1.0;
+
+        function closeDocPreviewModal() {
+            document.getElementById('docPreviewModal').style.display = 'none';
+            const contentDiv = document.getElementById('docPreviewContent');
+            if (contentDiv) contentDiv.innerHTML = '';
+            const noticeElem = document.getElementById('docPreviewNotice');
+            if (noticeElem) noticeElem.style.display = 'none';
+            currentDocxZoom = 1.0;
+        }
+
+        function changeDocxZoom(delta) {
+            if (delta === 0) {
+                currentDocxZoom = 1.0;
+            } else {
+                currentDocxZoom = Math.min(2.0, Math.max(0.5, Math.round((currentDocxZoom + delta) * 10) / 10));
+            }
+            applyDocxZoom();
+        }
+
+        function fitDocxWidth() {
+            const container = document.getElementById('docxContainer');
+            const content = document.getElementById('docPreviewContent');
+            const page = container ? container.querySelector('section.docx') : null;
+            if (page && content) {
+                const availableWidth = content.clientWidth - 40;
+                const pageWidth = page.offsetWidth || 794;
+                if (pageWidth > 0) {
+                    currentDocxZoom = Math.min(1.6, Math.max(0.5, Math.round((availableWidth / pageWidth) * 100) / 100));
+                    applyDocxZoom();
+                }
+            }
+        }
+
+        function applyDocxZoom() {
+            const container = document.getElementById('docxContainer');
+            const label = document.getElementById('docxZoomVal');
+            if (container) {
+                container.style.transform = `scale(${currentDocxZoom})`;
+                container.style.transformOrigin = 'top center';
+                container.style.transition = 'transform 0.15s ease-out';
+            }
+            if (label) {
+                label.innerText = Math.round(currentDocxZoom * 100) + '%';
+            }
+        }
+
         function previewDocument(rawUrl, type, filename, fileId = null) {
             const url = getSafeFileUrl(rawUrl);
             const safeUrl = encodeURI(decodeURI(url));
             document.getElementById('docPreviewTitle').innerText = 'พรีวิว: ' + filename;
             const contentDiv = document.getElementById('docPreviewContent');
+            const actionsDiv = document.getElementById('docPreviewHeaderActions');
+            const iconElem = document.getElementById('docPreviewIcon');
+            const noticeElem = document.getElementById('docPreviewNotice');
             
-            // Add or update download/external link in preview modal header
-            let extBtn = document.getElementById('docPreviewDownloadBtn');
-            const headerDiv = document.querySelector('#docPreviewModal div > div:first-child');
-            if (headerDiv) {
-                if (!extBtn) {
-                    extBtn = document.createElement('a');
-                    extBtn.id = 'docPreviewDownloadBtn';
-                    extBtn.className = 'btn btn-success';
-                    extBtn.target = '_blank';
-                    extBtn.style.padding = '4px 12px';
-                    extBtn.style.fontSize = '13px';
-                    extBtn.style.marginLeft = 'auto';
-                    extBtn.style.marginRight = '15px';
-                    extBtn.style.textDecoration = 'none';
-                    extBtn.innerHTML = '<i class="fa-solid fa-download"></i> ดาวน์โหลด / เปิดแยก';
-                    const closeBtn = headerDiv.querySelector('button');
-                    if (closeBtn) {
-                        headerDiv.insertBefore(extBtn, closeBtn);
-                    } else {
-                        headerDiv.appendChild(extBtn);
-                    }
+            if (noticeElem) noticeElem.style.display = 'none';
+            if (actionsDiv) actionsDiv.innerHTML = '';
+            
+            // Set modal icon
+            if (iconElem) {
+                if (type === 'word') iconElem.className = 'fa-solid fa-file-word';
+                else if (type === 'excel') iconElem.className = 'fa-solid fa-file-excel';
+                else if (type === 'pdf') iconElem.className = 'fa-solid fa-file-pdf';
+                else if (type === 'image') iconElem.className = 'fa-solid fa-file-image';
+                else iconElem.className = 'fa-solid fa-file';
+            }
+
+            // Check if there is a related/attached PDF in the current change request to offer 1-click switch
+            if (type === 'word' && window.currentReqFiles && window.currentReqFiles.length > 0) {
+                const relatedPdf = window.currentReqFiles.find(f => (f.name || '').toLowerCase().endsWith('.pdf'));
+                if (relatedPdf && actionsDiv) {
+                    const switchPdfBtn = document.createElement('button');
+                    switchPdfBtn.type = 'button';
+                    switchPdfBtn.className = 'btn btn-warning';
+                    switchPdfBtn.style.padding = '4px 10px';
+                    switchPdfBtn.style.fontSize = '12px';
+                    switchPdfBtn.style.fontWeight = '500';
+                    switchPdfBtn.style.borderRadius = '6px';
+                    switchPdfBtn.style.border = 'none';
+                    switchPdfBtn.style.cursor = 'pointer';
+                    switchPdfBtn.style.color = '#78350f';
+                    switchPdfBtn.style.background = '#fef08a';
+                    switchPdfBtn.innerHTML = `<i class="fa-solid fa-file-pdf" style="color:#dc2626;"></i> สลับดูไฟล์ PDF (${relatedPdf.name})`;
+                    switchPdfBtn.onclick = function() {
+                        previewDocument(getSafeFileUrl(relatedPdf.url), 'pdf', relatedPdf.name, relatedPdf.id);
+                    };
+                    actionsDiv.appendChild(switchPdfBtn);
                 }
+            }
+
+            // Zoom controls for Word preview
+            if (type === 'word' && actionsDiv) {
+                const zoomBox = document.createElement('div');
+                zoomBox.style.display = 'flex';
+                zoomBox.style.alignItems = 'center';
+                zoomBox.style.background = '#334155';
+                zoomBox.style.borderRadius = '6px';
+                zoomBox.style.padding = '2px 6px';
+                zoomBox.style.gap = '4px';
+                zoomBox.innerHTML = `
+                    <button type="button" onclick="changeDocxZoom(-0.1)" title="ซูมออก" style="background:none; border:none; color:white; cursor:pointer; padding:2px 6px; font-size:14px;"><i class="fa-solid fa-minus"></i></button>
+                    <span id="docxZoomVal" style="font-size:12px; min-width:38px; text-align:center; user-select:none; font-family:'Kanit', sans-serif;">100%</span>
+                    <button type="button" onclick="changeDocxZoom(0.1)" title="ซูมเข้า" style="background:none; border:none; color:white; cursor:pointer; padding:2px 6px; font-size:14px;"><i class="fa-solid fa-plus"></i></button>
+                    <button type="button" onclick="fitDocxWidth()" title="พอดีความกว้างหน้าต่าง" style="background:#475569; border:none; color:#f8fafc; border-radius:4px; cursor:pointer; padding:2px 8px; font-size:11px; margin-left:4px; font-family:'Kanit', sans-serif;"><i class="fa-solid fa-arrows-left-right"></i> พอดีจอ</button>
+                `;
+                actionsDiv.appendChild(zoomBox);
+            }
+
+            // Download / Open in Word Button
+            if (actionsDiv) {
+                const extBtn = document.createElement('a');
+                extBtn.id = 'docPreviewDownloadBtn';
+                extBtn.className = 'btn btn-success';
+                extBtn.target = '_blank';
+                extBtn.style.padding = '4px 12px';
+                extBtn.style.fontSize = '13px';
+                extBtn.style.textDecoration = 'none';
+                extBtn.style.display = 'inline-flex';
+                extBtn.style.alignItems = 'center';
+                extBtn.style.gap = '6px';
+                extBtn.innerHTML = type === 'word' ? '<i class="fa-solid fa-download"></i> เปิดใน Word' : '<i class="fa-solid fa-download"></i> ดาวน์โหลด / เปิดแยก';
                 extBtn.href = safeUrl;
                 extBtn.download = filename;
+                actionsDiv.appendChild(extBtn);
             }
 
             if (type === 'image') {
                 document.getElementById('docPreviewModal').style.display = 'flex';
+                contentDiv.style.background = '#1e293b';
                 contentDiv.innerHTML = `<img src="${safeUrl}" style="max-width:100%; max-height:100%; border-radius:8px; object-fit:contain; display:block; margin:auto;" />`;
                 return;
             }
 
             if (type === 'pdf') {
                 document.getElementById('docPreviewModal').style.display = 'flex';
+                contentDiv.style.background = '#334155';
                 contentDiv.innerHTML = `<iframe src="${safeUrl}#toolbar=1" width="100%" height="100%" style="border:none; border-radius:8px;"></iframe>`;
                 return;
             }
@@ -1314,6 +1472,9 @@
                     document.getElementById('docPreviewModal').style.display = 'flex';
                     
                     if (type === 'word') {
+                        contentDiv.style.background = '#475569';
+                        if (noticeElem) noticeElem.style.display = 'flex';
+
                         if (filename.toLowerCase().endsWith('.doc')) {
                             Swal.close();
                             contentDiv.innerHTML = `<div style="text-align:center; padding:50px 20px; background:white; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.05); max-width:600px; margin:40px auto; font-family:'Kanit', sans-serif;">
@@ -1337,7 +1498,11 @@
                         }
 
                         const container = document.createElement('div');
+                        container.id = 'docxContainer';
                         container.style.width = '100%';
+                        container.style.display = 'flex';
+                        container.style.flexDirection = 'column';
+                        container.style.alignItems = 'center';
                         contentDiv.appendChild(container);
                         
                         const docxOptions = {
@@ -1354,7 +1519,12 @@
                         };
                         
                         docx.renderAsync(blob, container, null, docxOptions)
-                            .then(() => { Swal.close(); })
+                            .then(() => {
+                                Swal.close();
+                                setTimeout(() => {
+                                    if (window.innerWidth < 1200) fitDocxWidth();
+                                }, 300);
+                            })
                             .catch(err => {
                                 console.error('DOCX Preview Render Error:', err);
                                 Swal.close();
@@ -1367,6 +1537,8 @@
                                         <a href="${safeUrl}" download="${filename}" class="btn btn-success" style="padding:10px 22px; border-radius:8px; font-weight:500; font-size:14px; text-decoration:none;"><i class="fa-solid fa-download"></i> ดาวน์โหลดเพื่อเปิดใน Microsoft Word</a>
                                         <a href="${safeUrl}" target="_blank" class="btn btn-outline-secondary" style="padding:10px 20px; border-radius:8px; font-weight:500; font-size:14px; text-decoration:none; border:1px solid #cbd5e1; color:#475569; background:#f8fafc;"><i class="fa-solid fa-arrow-up-right-from-square"></i> เปิดไฟล์ในแท็บใหม่</a>
                                     </div>
+                                </div>`;
+                            });
                                 </div>`;
                             });
                     } else if (type === 'excel') {
@@ -2176,6 +2348,7 @@
                 
                 // Populate file previews
                 if (reqFiles.length > 0) {
+                    window.currentReqFiles = reqFiles;
                     const previewContainer = document.getElementById('file-preview-container');
                     previewContainer.innerHTML = '';
                     

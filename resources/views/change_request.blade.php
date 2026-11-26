@@ -1539,8 +1539,6 @@
                                     </div>
                                 </div>`;
                             });
-                                </div>`;
-                            });
                     } else if (type === 'excel') {
                         if (filename.toLowerCase().endsWith('.xls')) {
                             // Fallback to SheetJS for old .xls
